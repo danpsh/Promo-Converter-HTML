@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="config.js"></script>
 <style>
   *{box-sizing:border-box;}
   html{color-scheme:light;}
@@ -352,11 +351,11 @@ class Component extends DCLogic {
   async fetchOdds(sportKey, market="h2h"){
     const ck=sportKey+"|"+market, now=Date.now(), c=this._cache[ck];
     if(c && now-c.t<300000) return c.v;
-    const url=`https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${encodeURIComponent(this.state.apiKey)}&regions=us,us2&markets=${market}&oddsFormat=american`;
+    const url=`api/odds?sport=${encodeURIComponent(sportKey)}&market=${encodeURIComponent(market)}`;
     let res;
     try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API (possible CORS or connection issue)."); }
     if(!res.ok){
-      if(res.status===401) throw new Error("Invalid API key (401) — check window.ODDS_API_KEY in config.js.");
+      if(res.status===401) throw new Error("Server has no API key set (401) — add the ODDS_API_KEY env var on your host.");
       if(res.status===422) throw new Error(`No data for ${sportKey} (422 — sport may be out of season).`);
       if(res.status===429) throw new Error("API quota exceeded (429).");
       throw new Error("The Odds API returned HTTP "+res.status+".");
@@ -614,7 +613,7 @@ class Component extends DCLogic {
   toggleChip(e){ const el=e.currentTarget, f=el.dataset.field, v=el.dataset.value; let set; if(el.dataset.single==="1"){ set=new Set(this.state.chips[f].has(v)?[]:[v]); } else { set=new Set(this.state.chips[f]); set.has(v)?set.delete(v):set.add(v); } this.setState({chips:{...this.state.chips,[f]:set}}); }
   toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
   readForm(ref){ const el=ref&&ref.current, out={}; if(el) el.querySelectorAll("[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; }
-  needKey(setter){ if(!this.state.apiKey){ this.setState(setter("No Odds API key found — set window.ODDS_API_KEY in config.js.")); return true; } return false; }
+  needKey(setter){ return false; }
 
   async scanMain(){
     const f=this.readForm(this.mainFormRef.current);
