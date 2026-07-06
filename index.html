@@ -39,7 +39,7 @@
   <div style="margin-top:22px;">
     <div style="display:inline-flex;flex-wrap:wrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;">
       <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
-      <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>3-Way Soccer</button>
+      <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>Multi-Book Soccer</button>
       <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
     </div>
   </div>
@@ -128,7 +128,7 @@
     </sc-if>
   </div>
 
-  <!-- ============ 3-WAY SOCCER ============ -->
+  <!-- ============ MULTI-BOOK SOCCER ============ -->
   <div style="{{ soccerPanelStyle }}">
     <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
       <div ref="{{ soccerFormRef }}">
@@ -200,7 +200,7 @@
     </div>
 
     <sc-if value="{{ soccerMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ soccerMsg }}</div></sc-if>
-    <sc-if value="{{ soccerShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Set up all three legs, then <strong style="color:#71717a;">Scan</strong> for 3-way World Cup hedges.</div></sc-if>
+    <sc-if value="{{ soccerShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Set up all three legs, then <strong style="color:#71717a;">Scan</strong> for World Cup hedges.</div></sc-if>
 
     <sc-if value="{{ soccerHasResults }}" hint-placeholder-val="">
       <div style="margin-top:22px;">
@@ -433,15 +433,17 @@ class Component extends DCLogic {
     const book3_keys = sc.book3.length ? sc.book3.map(b=>book_map[b]) : Object.values(book_map);
     const allowed_keys=Object.values(book_map);
     const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
-    const soccer_opps=[];
+    const soccer_opps=[]; this._soccerStat={games:0, threeWay:0};
     for(const league_label of sc.leagues){
       const [games,remaining]=await this.fetchOdds(sports_map[league_label],"h2h");
       if(!games) continue; this.setState({apiQuota:remaining});
       for(const game of games){
         if(!this.gameNotStarted(game.commence_time)) continue;
         const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        this._soccerStat.games++;
         const flat=this.buildFlat3way(game,allowed_keys); if(!flat.length) continue;
         const unique=[...new Set(flat.map(o=>o.team))]; if(unique.length!==3) continue;
+        this._soccerStat.threeWay++;
         const [t1,t2,draw]=unique;
         const odds_t1=flat.filter(o=>o.team===t1), odds_t2=flat.filter(o=>o.team===t2), odds_draw=flat.filter(o=>o.team===draw);
         for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
@@ -643,7 +645,12 @@ class Component extends DCLogic {
     this.setState({soccerScanning:true, soccerMsg:"", soccerResults:[]});
     try{ const opps=await this.runSoccerScan(sc);
       const vms=opps.sort((a,b)=>b.net_profit-a.net_profit).slice(0,10).map((o,i)=>this.finalize(this.buildSoccerVM(o,i)));
-      this.setState({soccerResults:vms, soccerScanning:false, soccerMsg: vms.length?"":"No matches found for your designated book criteria."});
+      let msg="";
+      if(!vms.length){ const st=this._soccerStat||{games:0,threeWay:0};
+        if(st.games===0) msg="No upcoming World Cup matches in the look-ahead window. Widen it in Tweaks (lookaheadDays).";
+        else if(st.threeWay===0) msg=`Found ${st.games} upcoming match${st.games===1?"":"es"}, but none had a 3-outcome (Team/Team/Draw) line across the US books — in the knockout stage they're priced 2-way, which this engine can't hedge. Use Main Boost for those.`;
+        else msg="No profitable matches for your book/promo criteria."; }
+      this.setState({soccerResults:vms, soccerScanning:false, soccerMsg: msg});
     }catch(e){ this.setState({soccerScanning:false, soccerMsg:"Scan error: "+e.message, soccerResults:[]}); }
   }
 
