@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  html{color-scheme:light;}
+  html,body{margin:0;padding:0;}
+  body{background:#f4f4f5;color:#18181b;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:#0f766e;text-decoration:none;}
+  a:hover{color:#115e59;}
+  summary{list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+  input,select,button{font-family:inherit;}
+  input:focus,select:focus{outline:none;border-color:#18181b;box-shadow:0 0 0 3px rgba(24,24,27,.07);}
+  input[type=number]::-webkit-inner-spin-button{opacity:.3;}
+</style>
+</helmet>
+
+<div style="max-width:1060px;margin:0 auto;padding:30px 22px 90px;">
+
+  <header style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;">
+    <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;color:#0f172a;">Promo Converter</h1>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a93;">Requests left</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:5px 11px;color:#0f172a;">{{ apiQuota }}</span>
+    </div>
+  </header>
+
+  <div style="margin-top:22px;">
+    <div style="display:inline-flex;flex-wrap:wrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;">
+      <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
+      <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>3-Way Soccer</button>
+      <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
+    </div>
+  </div>
+
+  <!-- ============ MAIN BOOST ============ -->
+  <div style="{{ mainPanelStyle }}">
+    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+      <div ref="{{ mainFormRef }}">
+        <div style="margin-bottom:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Source Book</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mb_book }}" as="c" hint-placeholder-count="4"><span data-field="mb_book" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Promo Type</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mb_strat }}" as="c" hint-placeholder-count="3"><span data-field="mb_strat" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Wager Amount</div>
+            <div style="position:relative;">
+              <span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span>
+              <input data-field="wager" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;">
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost Value</div>
+            <div style="position:relative;">
+              <input data-field="boost" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 28px 0 12px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;">
+              <span style="position:absolute;right:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Hedge Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— Any = every book except your source</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_hedge }}" as="c" hint-placeholder-count="5"><span data-value="{{ c.value }}" onClick="{{ toggleHedge }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sports <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— none = all</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mainSports }}" as="c" hint-placeholder-count="5"><span data-field="mainSports" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid #efeff1;">
+          <button onClick="{{ scanMain }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
+          <span style="font-size:13px;color:#71717a;">{{ mainStatus }}</span>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ mainMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ mainMsg }}</div></sc-if>
+    <sc-if value="{{ mainShowHint }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Configure your promo above, then <strong style="color:#71717a;">Scan</strong> to surface hedge opportunities.</div></sc-if>
+
+    <sc-if value="{{ mainHasResults }}" hint-placeholder-val="">
+      <div style="margin-top:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ mainCountLabel }}</span>
+          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
+        </div>
+        <sc-for list="{{ mainList }}" as="r" hint-placeholder-count="0">
+          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
+            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
+              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
+            </summary>
+            <div style="padding:2px 16px 16px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="2">
+                  <div style="{{ leg.cardStyle }}">
+                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
+                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
+                    <sc-if value="{{ leg.sub }}" hint-placeholder-val=""><div style="font-size:12px;font-style:italic;color:#71717a;margin:1px 0 6px;">{{ leg.sub }}</div></sc-if>
+                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
+                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="1"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
+              </div>
+            </div>
+          </details>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- ============ 3-WAY SOCCER ============ -->
+  <div style="{{ soccerPanelStyle }}">
+    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+      <div ref="{{ soccerFormRef }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
+
+          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#0369a1;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#0ea5e9;"></span>Bet 1</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Book <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· pick one</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book1 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type1 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+              </div>
+              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+            </div>
+          </div>
+
+          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>Bet 2</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">none = all</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book2 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book2" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type2 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type2" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+              </div>
+              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+            </div>
+          </div>
+
+          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#b45309;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;"></span>Bet 3</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">none = all</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book3 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book3" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type3 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type3" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+              </div>
+              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:20px;border-top:1px solid #efeff1;">
+          <button onClick="{{ scanSoccer }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
+          <span style="font-size:13px;color:#71717a;">{{ soccerStatus }}</span>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ soccerMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ soccerMsg }}</div></sc-if>
+    <sc-if value="{{ soccerShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Set up all three legs, then <strong style="color:#71717a;">Scan</strong> for 3-way World Cup hedges.</div></sc-if>
+
+    <sc-if value="{{ soccerHasResults }}" hint-placeholder-val="">
+      <div style="margin-top:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ soccerCountLabel }}</span>
+          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
+        </div>
+        <sc-for list="{{ soccerList }}" as="r" hint-placeholder-count="0">
+          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
+            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
+              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
+            </summary>
+            <div style="padding:2px 16px 16px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="3">
+                  <div style="{{ leg.cardStyle }}">
+                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
+                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
+                    <sc-if value="{{ leg.sub }}" hint-placeholder-val=""><div style="font-size:12px;font-style:italic;color:#71717a;margin:1px 0 6px;">{{ leg.sub }}</div></sc-if>
+                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
+                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="1"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
+              </div>
+            </div>
+          </details>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- ============ BET & GET ============ -->
+  <div style="{{ betgetPanelStyle }}">
+    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+      <div ref="{{ betgetFormRef }}">
+        <div style="margin-bottom:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Book</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_bg_book }}" as="c" hint-placeholder-count="4"><span data-field="bg_book" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Qualifying Stake</div>
+            <div style="position:relative;"><span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span><input data-field="wager" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Bonus Value</div>
+            <div style="position:relative;"><span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span><input data-field="bonus" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;"></div>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sports <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— none = all</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_bg_sports }}" as="c" hint-placeholder-count="5"><span data-field="bg_sports" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid #efeff1;">
+          <button onClick="{{ scanBetGet }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
+          <span style="font-size:13px;color:#71717a;">{{ betgetStatus }}</span>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ betgetMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ betgetMsg }}</div></sc-if>
+    <sc-if value="{{ betgetShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Enter your qualifier and bonus, then <strong style="color:#71717a;">Scan</strong> for the cheapest path.</div></sc-if>
+
+    <sc-if value="{{ betgetHasResults }}" hint-placeholder-val="">
+      <div style="margin-top:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ betgetCountLabel }}</span>
+          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
+        </div>
+        <sc-for list="{{ betgetList }}" as="r" hint-placeholder-count="0">
+          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
+            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
+              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
+            </summary>
+            <div style="padding:2px 16px 16px;">
+              <sc-if value="{{ r.caption }}" hint-placeholder-val=""><div style="font-size:12px;color:#71717a;margin-bottom:10px;">{{ r.caption }}</div></sc-if>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="2">
+                  <div style="{{ leg.cardStyle }}">
+                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
+                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
+                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
+                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="2"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
+              </div>
+            </div>
+          </details>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <p style="margin-top:30px;font-size:12px;color:#a8a8af;line-height:1.6;">Times shown in CT · window = today + next 2 days · results with profit &gt; −$10 surfaced (near-arb included) · Bet &amp; Get net value assumes 65% bonus conversion. Odds cached 5 min to preserve quota.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;lookaheadDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:14,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;noSweatConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;betGetConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;minProfit&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:-10,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;}}">
+const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm" };
+const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup", "Wimbledon (ATP)":"tennis_atp_wimbledon", "Wimbledon (WTA)":"tennis_wta_wimbledon" };
+const BOOK_LABELS = Object.keys(book_map);
+const SPORT_LABELS = Object.keys(sports_map);
+const MAIN_PROMOS = [{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
+const SOCCER_PROMOS = [{value:"Straight Cash",label:"Straight Cash"},{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
+const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0faf3",bd:"#c9ecd6",ac:"#15803d"}, warning:{bg:"#fff8eb",bd:"#f2e2b3",ac:"#b45309"} };
+
+class Component extends DCLogic {
+  state = {
+    apiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true,
+    chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set() },
+    mainResults:[], soccerResults:[], betgetResults:[],
+    mainMsg:"", soccerMsg:"", betgetMsg:"",
+    mainScanning:false, soccerScanning:false, betgetScanning:false
+  };
+
+  constructor(props){ super(props); this._cache={};
+    this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); }
+
+  componentDidMount(){
+    const injected = (typeof window!=="undefined" && window.ODDS_API_KEY) ? String(window.ODDS_API_KEY) : "";
+    if(injected){ this.setState({apiKey:injected}); return; }
+    try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.setState({apiKey:k}); }catch(e){}
+  }
+
+  noSweat(){ return this.props.noSweatConversion ?? 0.65; }
+  betGet(){ return this.props.betGetConversion ?? 0.65; }
+  thresh(){ return this.props.minProfit ?? -10.0; }
+  lookaheadDays(){ return this.props.lookaheadDays ?? 2; }
+
+  mult(p){ return p>0 ? p/100 : 100/Math.abs(p); }
+  priceStr(p){ return (p>=0?"+":"")+p; }
+  money(x){ return "$"+Number(x).toFixed(2); }
+  centralKeyFromDate(d){ const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d); const g=t=>+p.find(x=>x.type===t).value; return g("year")*10000+g("month")*100+g("day"); }
+  centralKey(str){ return this.centralKeyFromDate(new Date(str)); }
+  dateWindow(days){ const now=new Date(); return { todayKey:this.centralKeyFromDate(now), endKey:this.centralKeyFromDate(new Date(now.getTime()+days*86400000)) }; }
+  gameNotStarted(str){ return new Date(str) > new Date(); }
+  fmtTime(str){ const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:true}).formatToParts(new Date(str)); const g=t=>parts.find(x=>x.type===t).value; return `${g("month")}/${g("day")} ${g("hour")}:${g("minute")} ${g("dayPeriod")}`; }
+
+  async fetchOdds(sportKey, market="h2h"){
+    const ck=sportKey+"|"+market, now=Date.now(), c=this._cache[ck];
+    if(c && now-c.t<300000) return c.v;
+    const url=`https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${encodeURIComponent(this.state.apiKey)}&regions=us,us2&markets=${market}&oddsFormat=american`;
+    let res;
+    try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API (possible CORS or connection issue)."); }
+    if(!res.ok){
+      if(res.status===401) throw new Error("Invalid API key (401) — check window.ODDS_API_KEY in config.js.");
+      if(res.status===422) throw new Error(`No data for ${sportKey} (422 — sport may be out of season).`);
+      if(res.status===429) throw new Error("API quota exceeded (429).");
+      throw new Error("The Odds API returned HTTP "+res.status+".");
+    }
+    const data=await res.json();
+    const remaining=res.headers.get("x-requests-remaining")||"0";
+    const v=[data, remaining]; this._cache[ck]={t:now,v}; return v;
+  }
+
+  buildFlatH2h(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
+  buildFlat3way(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m||m.outcomes.length!==3) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
+
+  async runPromoScan(p){
+    const CONV_NOSWEAT=this.noSweat(), TH=this.thresh();
+    const source_book_key=book_map[p.book];
+    const allowed_hedge_keys = p.hedge_books.length ? p.hedge_books.map(b=>book_map[b]).filter(v=>v!==source_book_key) : Object.values(book_map).filter(v=>v!==source_book_key);
+    const allowed_keys=[source_book_key,...allowed_hedge_keys];
+    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
+    const all_opps=[];
+    for(const sport_label of p.sports){
+      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
+      if(!games) continue; this.setState({apiQuota:remaining});
+      for(const game of games){
+        if(!this.gameNotStarted(game.commence_time)) continue;
+        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        const flat=this.buildFlatH2h(game,allowed_keys); if(!flat.length) continue;
+        const game_label=`${game.away_team||"Away"} vs ${game.home_team||"Home"}`;
+        const game_time=this.fmtTime(game.commence_time);
+        const unique=[...new Set(flat.map(o=>o.team))];
+        if(unique.length===2){
+          const source_odds=flat.filter(o=>o.book_key===source_book_key);
+          const hedge_odds=flat.filter(o=>allowed_hedge_keys.includes(o.book_key));
+          for(const s of source_odds){
+            const hedge_teams=unique.filter(t=>t!==s.team); if(!hedge_teams.length) continue;
+            const eligible=hedge_odds.filter(h=>h.team===hedge_teams[0]); if(!eligible.length) continue;
+            const best_h=eligible.reduce((a,b)=>b.price>a.price?b:a);
+            const sm=this.mult(s.price), hm=this.mult(best_h.price);
+            let target_payout, raw_h, exact_profit;
+            if(p.strat==="Profit Boost (%)"){ const sm_eff=sm*(1+p.boost_val/100); target_payout=p.wager*(1+sm_eff); raw_h=target_payout/(1+hm); exact_profit=target_payout-p.wager-raw_h; }
+            else if(p.strat==="Bonus Bet"){ target_payout=p.wager*sm; raw_h=target_payout/(1+hm); exact_profit=target_payout-raw_h; }
+            else { target_payout=p.wager*(1+sm); raw_h=(target_payout-p.wager*CONV_NOSWEAT)/(1+hm); exact_profit=target_payout-p.wager-raw_h; }
+            if(exact_profit>TH){ all_opps.push({game:game_label,sport:sport_label,market_type:"2-way",time:game_time,exact_profit,exact_hedge:raw_h,s_team:s.team,s_book:s.book_title,s_price:s.price,h_book:best_h.book_title,h_team:best_h.team,h_price:best_h.price,wager:p.wager,strat:p.strat,used_boost:p.strat==="Profit Boost (%)"?p.boost_val:0}); }
+          }
+        } else if(unique.length===3){
+          const groups=unique.map(team=>[team, flat.filter(o=>o.team===team)]);
+          for(let i=0;i<groups.length;i++) for(let j=0;j<groups.length;j++){ if(j===i) continue; for(let k=0;k<groups.length;k++){ if(k===i||k===j) continue;
+            for(const o1 of groups[i][1]) for(const o2 of groups[j][1]) for(const o3 of groups[k][1]){
+              const books_used=[o1.book_key,o2.book_key,o3.book_key];
+              if(new Set(books_used).size!==3) continue;
+              if(!books_used.includes(source_book_key)) continue;
+              const all_legs=[o1,o2,o3];
+              const src_idx=all_legs.findIndex(o=>o.book_key===source_book_key);
+              const src_o=all_legs[src_idx];
+              const hedge_os=all_legs.filter((_,n)=>n!==src_idx);
+              const ho1=hedge_os[0], ho2=hedge_os[1];
+              const sm=this.mult(src_o.price), hm1=this.mult(ho1.price), hm2=this.mult(ho2.price);
+              let target_pay,h1_stake,h2_stake,exact_profit;
+              if(p.strat==="Profit Boost (%)"){ const sm_eff=sm*(1+p.boost_val/100); target_pay=p.wager*(1+sm_eff); h1_stake=target_pay/(1+hm1); h2_stake=target_pay/(1+hm2); exact_profit=target_pay-p.wager-h1_stake-h2_stake; }
+              else if(p.strat==="Bonus Bet"){ target_pay=p.wager*sm; h1_stake=target_pay/(1+hm1); h2_stake=target_pay/(1+hm2); exact_profit=target_pay-h1_stake-h2_stake; }
+              else { target_pay=p.wager*(1+sm); h1_stake=(target_pay-p.wager*CONV_NOSWEAT)/(1+hm1); h2_stake=(target_pay-p.wager*CONV_NOSWEAT)/(1+hm2); exact_profit=target_pay-p.wager-h1_stake-h2_stake; }
+              if(exact_profit>TH){ all_opps.push({game:game_label,sport:sport_label,market_type:"3-way",time:game_time,exact_profit,wager:p.wager,strat:p.strat,s_team:src_o.team,s_book:src_o.book_title,s_price:src_o.price,exact_w1:p.wager,h1_book:ho1.book_title,h1_team:ho1.team,h1_price:ho1.price,exact_hedge1:h1_stake,h2_book:ho2.book_title,h2_team:ho2.team,h2_price:ho2.price,exact_hedge2:h2_stake,used_boost:p.strat==="Profit Boost (%)"?p.boost_val:0}); }
+            }
+          }}
+        }
+      }
+    }
+    const seen={};
+    for(const op of all_opps){ const key = op.market_type==="3-way" ? op.game+"|"+op.s_book+"|"+[op.s_book,op.h1_book,op.h2_book].sort().join(",") : op.game+"|"+op.s_book+"|"+op.h_book; if(!(key in seen)||op.exact_profit>seen[key].exact_profit) seen[key]=op; }
+    return Object.values(seen);
+  }
+
+  async runSoccerScan(sc){
+    const book1_key=book_map[sc.book1];
+    const book2_keys = sc.book2.length ? sc.book2.map(b=>book_map[b]) : Object.values(book_map);
+    const book3_keys = sc.book3.length ? sc.book3.map(b=>book_map[b]) : Object.values(book_map);
+    const allowed_keys=Object.values(book_map);
+    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
+    const soccer_opps=[];
+    for(const league_label of sc.leagues){
+      const [games,remaining]=await this.fetchOdds(sports_map[league_label],"h2h");
+      if(!games) continue; this.setState({apiQuota:remaining});
+      for(const game of games){
+        if(!this.gameNotStarted(game.commence_time)) continue;
+        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        const flat=this.buildFlat3way(game,allowed_keys); if(!flat.length) continue;
+        const unique=[...new Set(flat.map(o=>o.team))]; if(unique.length!==3) continue;
+        const [t1,t2,draw]=unique;
+        const odds_t1=flat.filter(o=>o.team===t1), odds_t2=flat.filter(o=>o.team===t2), odds_draw=flat.filter(o=>o.team===draw);
+        for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
+          if(o1.book_key===o2.book_key||o1.book_key===o3.book_key||o2.book_key===o3.book_key) continue;
+          if(o1.book_key!==book1_key) continue;
+          if(!book2_keys.includes(o2.book_key)) continue;
+          if(!book3_keys.includes(o3.book_key)) continue;
+          const leg_payout=(w_total,strat,boost_pct,m_raw,cap_val)=>{
+            const m_boosted = strat==="Profit Boost (%)" ? m_raw*(1+boost_pct/100) : m_raw;
+            let w_promo,w_cash;
+            if(strat!=="Straight Cash" && cap_val>0 && w_total>cap_val){ w_promo=cap_val; w_cash=w_total-cap_val; }
+            else { w_promo = strat!=="Straight Cash" ? w_total : 0.0; w_cash = strat!=="Straight Cash" ? 0.0 : w_total; }
+            let raw_pay,outlay;
+            if(strat==="Bonus Bet"){ raw_pay=(w_promo*m_boosted)+(w_cash*(1+m_raw)); outlay=w_cash; }
+            else if(strat==="No-Sweat Bet"){ raw_pay=(w_promo*(1+m_raw))+(w_cash*(1+m_raw)); outlay=w_total; }
+            else { raw_pay=(w_promo*(1+m_boosted))+(w_cash*(1+m_raw)); outlay=w_total; }
+            return [raw_pay,outlay,w_promo,w_cash];
+          };
+          const m1_raw=this.mult(o1.price);
+          const [target_pay,outlay1,w1_promo,w1_cash]=leg_payout(sc.wager1,sc.strat1,sc.boost1,m1_raw,sc.cap1_val);
+          const w1_total=sc.wager1;
+          const m2_raw=this.mult(o2.price);
+          const m2_boosted = sc.strat2==="Profit Boost (%)" ? m2_raw*(1+sc.boost2/100) : m2_raw;
+          const div_promo2 = sc.strat2==="Bonus Bet" ? m2_boosted : (1+m2_boosted);
+          const div_cash2 = 1+m2_raw;
+          let w2_promo,w2_cash;
+          if(sc.strat2!=="Straight Cash" && sc.cap2_val>0){ const max2=sc.cap2_val*div_promo2; if(target_pay>max2){ w2_promo=sc.cap2_val; w2_cash=(target_pay-max2)/div_cash2; } else { w2_promo=target_pay/div_promo2; w2_cash=0.0; } }
+          else if(sc.strat2==="Straight Cash"){ w2_promo=0.0; w2_cash=target_pay/div_cash2; }
+          else { w2_promo=target_pay/div_promo2; w2_cash=0.0; }
+          const w2_total=w2_promo+w2_cash;
+          const outlay2 = sc.strat2==="Bonus Bet" ? w2_cash : w2_total;
+          const m3_raw=this.mult(o3.price);
+          const m3_boosted = sc.strat3==="Profit Boost (%)" ? m3_raw*(1+sc.boost3/100) : m3_raw;
+          const div_promo3 = sc.strat3==="Bonus Bet" ? m3_boosted : (1+m3_boosted);
+          const div_cash3 = 1+m3_raw;
+          let w3_promo,w3_cash;
+          if(sc.strat3!=="Straight Cash" && sc.cap3_val>0){ const max3=sc.cap3_val*div_promo3; if(target_pay>max3){ w3_promo=sc.cap3_val; w3_cash=(target_pay-max3)/div_cash3; } else { w3_promo=target_pay/div_promo3; w3_cash=0.0; } }
+          else if(sc.strat3==="Straight Cash"){ w3_promo=0.0; w3_cash=target_pay/div_cash3; }
+          else { w3_promo=target_pay/div_promo3; w3_cash=0.0; }
+          const w3_total=w3_promo+w3_cash;
+          const outlay3 = sc.strat3==="Bonus Bet" ? w3_cash : w3_total;
+          const net_profit=target_pay-(outlay1+outlay2+outlay3);
+          soccer_opps.push({ game:`${game.away_team} vs ${game.home_team}`, time:this.fmtTime(game.commence_time), net_profit,
+            o1_book:o1.book_title,o1_team:o1.team,o1_price:o1.price,o1_wager:w1_total,o1_promo:w1_promo,o1_cash:w1_cash,o1_strat:sc.strat1,o1_boost:sc.strat1==="Profit Boost (%)"?sc.boost1:0,
+            o2_book:o2.book_title,o2_team:o2.team,o2_price:o2.price,o2_wager:w2_total,o2_promo:w2_promo,o2_cash:w2_cash,o2_strat:sc.strat2,o2_boost:sc.strat2==="Profit Boost (%)"?sc.boost2:0,
+            o3_book:o3.book_title,o3_team:o3.team,o3_price:o3.price,o3_wager:w3_total,o3_promo:w3_promo,o3_cash:w3_cash,o3_strat:sc.strat3,o3_boost:sc.strat3==="Profit Boost (%)"?sc.boost3:0 });
+        }
+      }
+    }
+    const seen={};
+    for(const op of soccer_opps){ const key=op.game+"|"+[op.o1_book,op.o2_book,op.o3_book].sort().join(","); if(!(key in seen)||op.net_profit>seen[key].net_profit) seen[key]=op; }
+    return Object.values(seen);
+  }
+
+  async runBetGetScan(bg){
+    const source_book_key=book_map[bg.book];
+    const allowed_hedge_keys=Object.values(book_map).filter(v=>v!==source_book_key);
+    const allowed_keys=[source_book_key,...allowed_hedge_keys];
+    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
+    const bg_opps=[]; const projected=bg.bonus_val*this.betGet();
+    for(const sport_label of bg.sports){
+      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
+      if(!games) continue; this.setState({apiQuota:remaining});
+      for(const game of games){
+        if(!this.gameNotStarted(game.commence_time)) continue;
+        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        const flat=this.buildFlatH2h(game,allowed_keys); if(!flat.length) continue;
+        const unique=[...new Set(flat.map(o=>o.team))];
+        const game_label=`${game.away_team} vs ${game.home_team}`, game_time=this.fmtTime(game.commence_time);
+        if(unique.length===3){
+          const odds_t1=flat.filter(o=>o.team===unique[0]), odds_t2=flat.filter(o=>o.team===unique[1]), odds_draw=flat.filter(o=>o.team===unique[2]);
+          for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
+            if(o1.book_key===o2.book_key||o1.book_key===o3.book_key||o2.book_key===o3.book_key) continue;
+            if(o1.book_key!==source_book_key) continue;
+            const sm=this.mult(o1.price), hm1=this.mult(o2.price), hm2=this.mult(o3.price);
+            const target_payout=bg.wager*(1+sm); const h1_stake=target_payout/(1+hm1); const h2_stake=target_payout/(1+hm2);
+            const qualifying_loss=target_payout-bg.wager-h1_stake-h2_stake; const net_value=projected+qualifying_loss;
+            bg_opps.push({game:game_label,sport:sport_label,market_type:"3-way",time:game_time,qualifying_loss,net_value,s_book:o1.book_title,s_team:o1.team,s_price:o1.price,s_wager:bg.wager,h1_book:o2.book_title,h1_team:o2.team,h1_price:o2.price,h1_wager:h1_stake,h2_book:o3.book_title,h2_team:o3.team,h2_price:o3.price,h2_wager:h2_stake});
+          }
+        } else if(unique.length===2){
+          const source_odds=flat.filter(o=>o.book_key===source_book_key);
+          const hedge_odds=flat.filter(o=>allowed_hedge_keys.includes(o.book_key));
+          for(const s of source_odds){
+            const opp=unique.filter(t=>t!==s.team); if(!opp.length) continue;
+            const eligible=hedge_odds.filter(h=>h.team===opp[0]); if(!eligible.length) continue;
+            const best_h=eligible.reduce((a,b)=>b.price>a.price?b:a);
+            const sm=this.mult(s.price), hm=this.mult(best_h.price);
+            const target_payout=bg.wager*(1+sm); const h_stake=target_payout/(1+hm);
+            const qualifying_loss=target_payout-bg.wager-h_stake; const net_value=projected+qualifying_loss;
+            bg_opps.push({game:game_label,sport:sport_label,market_type:"2-way",time:game_time,qualifying_loss,net_value,s_book:s.book_title,s_team:s.team,s_price:s.price,s_wager:bg.wager,h1_book:best_h.book_title,h1_team:best_h.team,h1_price:best_h.price,h1_wager:h_stake});
+          }
+        }
+      }
+    }
+    return bg_opps;
+  }
+
+  buildMainVM(op,i){
+    const profit=op.exact_profit, sign=profit>=0?"+":"";
+    const meta=[op.time, op.market_type];
+    if(op.used_boost>0) meta.push(`+${op.used_boost}% boost`);
+    if(op.strat==="Bonus Bet"){ const bw=op.exact_w1 ?? op.wager ?? 0; const cr=bw>0?profit/bw*100:0; meta.push(`${cr.toFixed(1)}% conv`); }
+    let legs;
+    if(op.market_type==="3-way"){
+      legs=[
+        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_w1)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",title:op.h1_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge1)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
+        {tone:"success",title:op.h2_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge2)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
+      ];
+    } else {
+      legs=[
+        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",title:op.h_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge)}],footer:`${op.h_team} @ ${this.priceStr(op.h_price)}`}
+      ];
+    }
+    return { rank:i+1, game:op.game, meta:meta.join(" · "), profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:"Net Arbitrage Profit",value:this.money(profit),tone:profit>=0?"pos":"neg"}], caption:"" };
+  }
+
+  buildSoccerVM(op,i){
+    const profit=op.net_profit, sign=profit>=0?"+":"";
+    const mk=(tone,book,strat,boost,wager,promo,cash,team,price)=>{
+      const promoLabel = boost>0 ? `${strat} +${boost}%` : strat;
+      const lines=[{label:"Total Bet",value:this.money(wager)}];
+      if(strat!=="Straight Cash"){ lines.push({label:"↳ Promo Stake",value:this.money(promo)}); if(cash>0) lines.push({label:"↳ Cash Top-Up",value:this.money(cash)}); }
+      return {tone,title:book,sub:promoLabel,lines,footer:`${team} @ ${this.priceStr(price)}`};
+    };
+    const legs=[
+      mk("info",op.o1_book,op.o1_strat,op.o1_boost,op.o1_wager,op.o1_promo,op.o1_cash,op.o1_team,op.o1_price),
+      mk("success",op.o2_book,op.o2_strat,op.o2_boost,op.o2_wager,op.o2_promo,op.o2_cash,op.o2_team,op.o2_price),
+      mk("warning",op.o3_book,op.o3_strat,op.o3_boost,op.o3_wager,op.o3_promo,op.o3_cash,op.o3_team,op.o3_price)
+    ];
+    return { rank:i+1, game:op.game, meta:`${op.time} · 3-way`, profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:"Net Profit",value:`${sign}${this.money(profit)}`,tone:profit>=0?"pos":"neg"}], caption:"" };
+  }
+
+  buildBetGetVM(op,i){
+    const nv=op.net_value, sign=nv>=0?"+":"";
+    let legs;
+    if(op.market_type==="3-way"){
+      legs=[
+        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",role:"Hedge Leg 1",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
+        {tone:"success",role:"Hedge Leg 2",title:op.h2_book,lines:[{label:"Bet",value:this.money(op.h2_wager)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
+      ];
+    } else {
+      legs=[
+        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",role:"Hedge Leg",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`}
+      ];
+    }
+    return { rank:i+1, game:op.game, meta:`${op.time} · ${op.market_type}`, profitStr:`${sign}${this.money(nv)}`, profitPos:nv>=0, legs,
+      caption:`League: ${op.sport} · Market: ${op.market_type.toUpperCase()}`,
+      metrics:[{label:"Qualifying Cost (Loss)",value:this.money(op.qualifying_loss),tone:"neutral"},{label:"Net Value Lock (Est. 65% Convert)",value:this.money(nv),tone:nv>=0?"pos":"neg"}] };
+  }
+
+  finalize(vm){
+    vm.profitColor = vm.profitPos ? "#15803d" : "#dc2626";
+    vm.legs = vm.legs.map(l=>({ role:l.role||"", sub:l.sub||"", title:l.title, footer:l.footer, lines:l.lines||[],
+      cardStyle:`background:${TONE[l.tone].bg};border:1px solid ${TONE[l.tone].bd};border-radius:9px;padding:12px 13px;`,
+      titleStyle:`font-weight:700;font-size:13.5px;color:${TONE[l.tone].ac};margin-bottom:6px;` }));
+    vm.metrics = vm.metrics.map(m=>({ label:m.label, value:m.value,
+      boxStyle:"background:#fafafa;border:1px solid #ececef;border-radius:9px;padding:10px 14px;min-width:150px;flex:1;",
+      valStyle:`font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;margin-top:2px;color:${m.tone==="pos"?"#15803d":m.tone==="neg"?"#dc2626":"#18181b"};` }));
+    vm.caption=vm.caption||"";
+    return vm;
+  }
+
+  setActive(t){ this.setState({activeTab:t}); }
+  toggleLosses(){ this.setState({hideLosses:!this.state.hideLosses}); }
+  toggleChip(e){ const el=e.currentTarget, f=el.dataset.field, v=el.dataset.value; let set; if(el.dataset.single==="1"){ set=new Set(this.state.chips[f].has(v)?[]:[v]); } else { set=new Set(this.state.chips[f]); set.has(v)?set.delete(v):set.add(v); } this.setState({chips:{...this.state.chips,[f]:set}}); }
+  toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
+  readForm(ref){ const el=ref&&ref.current, out={}; if(el) el.querySelectorAll("[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; }
+  needKey(setter){ if(!this.state.apiKey){ this.setState(setter("No Odds API key found — set window.ODDS_API_KEY in config.js.")); return true; } return false; }
+
+  async scanMain(){
+    const f=this.readForm(this.mainFormRef.current);
+    const ch=this.state.chips;
+    const book=[...ch.mb_book][0]||"", strat=[...ch.mb_strat][0]||"";
+    if(!book||!strat){ this.setState({mainMsg:"Please select a source book and promo type.", mainResults:[]}); return; }
+    if(this.needKey(m=>({mainMsg:m}))) return;
+    const sports=[...ch.mainSports];
+    const p={ book, strat, boost_val:parseFloat(f.boost)||0, wager:parseFloat(f.wager)||0, hedge_books: this.state.hedgeAny ? [] : [...ch.mainHedge], sports: sports.length?sports:SPORT_LABELS };
+    this.setState({mainScanning:true, mainMsg:"", mainResults:[]});
+    try{ const opps=await this.runPromoScan(p);
+      const vms=opps.sort((a,b)=>b.exact_profit-a.exact_profit).slice(0,15).map((o,i)=>this.finalize(this.buildMainVM(o,i)));
+      this.setState({mainResults:vms, mainScanning:false, mainMsg: vms.length?"":"No profitable matches found."});
+    }catch(e){ this.setState({mainScanning:false, mainMsg:"Scan error: "+e.message, mainResults:[]}); }
+  }
+
+  async scanSoccer(){
+    const f=this.readForm(this.soccerFormRef.current);
+    const ch=this.state.chips;
+    const book1=[...ch.sc_book1][0]||"", type1=[...ch.sc_type1][0]||"", type2=[...ch.sc_type2][0]||"", type3=[...ch.sc_type3][0]||"";
+    if(!book1||!type1||!type2||!type3){ this.setState({soccerMsg:"Please pick a book for Bet 1 and a promo type for each leg.", soccerResults:[]}); return; }
+    if(this.needKey(m=>({soccerMsg:m}))) return;
+    const sc={ book1, strat1:type1, boost1:parseFloat(f.sc_boost1)||0, wager1:parseFloat(f.sc_stake1)||0, cap1_val:parseFloat(f.sc_cap1)||0,
+      book2:[...ch.sc_book2], strat2:type2, boost2:parseFloat(f.sc_boost2)||0, wager2:parseFloat(f.sc_stake2)||0, cap2_val:parseFloat(f.sc_cap2)||0,
+      book3:[...ch.sc_book3], strat3:type3, boost3:parseFloat(f.sc_boost3)||0, wager3:parseFloat(f.sc_stake3)||0, cap3_val:parseFloat(f.sc_cap3)||0,
+      leagues:["FIFA World Cup"] };
+    this.setState({soccerScanning:true, soccerMsg:"", soccerResults:[]});
+    try{ const opps=await this.runSoccerScan(sc);
+      const vms=opps.sort((a,b)=>b.net_profit-a.net_profit).slice(0,10).map((o,i)=>this.finalize(this.buildSoccerVM(o,i)));
+      this.setState({soccerResults:vms, soccerScanning:false, soccerMsg: vms.length?"":"No matches found for your designated book criteria."});
+    }catch(e){ this.setState({soccerScanning:false, soccerMsg:"Scan error: "+e.message, soccerResults:[]}); }
+  }
+
+  async scanBetGet(){
+    const f=this.readForm(this.betgetFormRef.current);
+    const book=[...this.state.chips.bg_book][0]||"";
+    if(!book){ this.setState({betgetMsg:"Please select a book.", betgetResults:[]}); return; }
+    if(this.needKey(m=>({betgetMsg:m}))) return;
+    const sp=[...this.state.chips.bg_sports];
+    const bg={ book, wager:parseFloat(f.wager)||0, bonus_val:parseFloat(f.bonus)||0, sports: sp.length?sp:SPORT_LABELS };
+    this.setState({betgetScanning:true, betgetMsg:"", betgetResults:[]});
+    try{ const opps=await this.runBetGetScan(bg);
+      const vms=opps.sort((a,b)=>b.net_value-a.net_value).slice(0,10).map((o,i)=>this.finalize(this.buildBetGetVM(o,i)));
+      this.setState({betgetResults:vms, betgetScanning:false, betgetMsg: vms.length?"":"No tight lines found for qualification."});
+    }catch(e){ this.setState({betgetScanning:false, betgetMsg:"Scan error: "+e.message, betgetResults:[]}); }
+  }
+
+  renderVals(){
+    const chip=(field,opts,small)=>opts.map(o=>{ const v=typeof o==="string"?o:o.value, lbl=typeof o==="string"?o:o.label; const sel=this.state.chips[field].has(v);
+        const base = small ? "display:inline-flex;align-items:center;padding:6px 11px;border-radius:999px;font-size:12px;cursor:pointer;user-select:none;transition:all .12s;" : "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;transition:all .12s;";
+        const skin = sel ? "background:#18181b;color:#fff;border:1px solid #18181b;" : "background:#fff;color:#52525b;border:1px solid #e2e2e5;";
+        return {value:v,label:lbl,style:base+skin,styleSm:base+skin}; });
+    const s=this.state, at=s.activeTab, HL=s.hideLosses;
+    const tab=(id)=>{ const active=at===id; return `display:inline-flex;align-items:center;gap:7px;border:none;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:${active?600:500};cursor:pointer;white-space:nowrap;background:${active?"#fff":"transparent"};color:${active?"#18181b":"#71717a"};box-shadow:${active?"0 1px 3px rgba(0,0,0,.13)":"none"};`; };
+    const panel=(id)=> at===id ? "display:block;" : "display:none;";
+    const filt=(list)=> HL ? list.filter(r=>r.profitPos) : list;
+    const cnt=(list)=>{ const n=list.length; return `${n} ${n===1?"opportunity":"opportunities"}`; };
+    const mainList=filt(s.mainResults), soccerList=filt(s.soccerResults), betgetList=filt(s.betgetResults);
+    const HA=s.hedgeAny, source=[...s.chips.mb_book][0]||"";
+    const hedgeStyle=(sel,disabled)=> "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;user-select:none;transition:all .12s;cursor:"+(disabled?"not-allowed":"pointer")+";"+(disabled?"background:#f4f4f5;color:#c4c4c9;border:1px solid #ececef;":(sel?"background:#18181b;color:#fff;border:1px solid #18181b;":"background:#fff;color:#52525b;border:1px solid #e2e2e5;"));
+    const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
+    return {
+      apiQuota:s.apiQuota, toggleChip:(e)=>this.toggleChip(e), toggleHedge:(e)=>this.toggleHedge(e),
+      mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
+      tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"),
+      mainTabStyle:tab("main"), soccerTabStyle:tab("soccer"), betgetTabStyle:tab("betget"),
+      mainPanelStyle:panel("main"), soccerPanelStyle:panel("soccer"), betgetPanelStyle:panel("betget"),
+      chips_mb_book:chip("mb_book",BOOK_LABELS,false), chips_mb_strat:chip("mb_strat",MAIN_PROMOS,false),
+      chips_hedge, chips_mainSports:chip("mainSports",SPORT_LABELS,false),
+      chips_sc_book1:chip("sc_book1",BOOK_LABELS,true), chips_sc_book2:chip("sc_book2",BOOK_LABELS,true), chips_sc_book3:chip("sc_book3",BOOK_LABELS,true),
+      chips_sc_type1:chip("sc_type1",SOCCER_PROMOS,true), chips_sc_type2:chip("sc_type2",SOCCER_PROMOS,true), chips_sc_type3:chip("sc_type3",SOCCER_PROMOS,true),
+      chips_bg_book:chip("bg_book",BOOK_LABELS,false), chips_bg_sports:chip("bg_sports",SPORT_LABELS,false),
+      scanMain:()=>this.scanMain(), scanSoccer:()=>this.scanSoccer(), scanBetGet:()=>this.scanBetGet(),
+      mainStatus:s.mainScanning?"Scanning…":"", soccerStatus:s.soccerScanning?"Scanning…":"", betgetStatus:s.betgetScanning?"Scanning…":"",
+      mainMsg:s.mainMsg, soccerMsg:s.soccerMsg, betgetMsg:s.betgetMsg,
+      mainShowHint: s.mainResults.length===0 && !s.mainScanning && !s.mainMsg,
+      soccerShowHint: s.soccerResults.length===0 && !s.soccerScanning && !s.soccerMsg,
+      betgetShowHint: s.betgetResults.length===0 && !s.betgetScanning && !s.betgetMsg,
+      mainHasResults:s.mainResults.length>0, soccerHasResults:s.soccerResults.length>0, betgetHasResults:s.betgetResults.length>0,
+      mainList, soccerList, betgetList,
+      mainCountLabel:cnt(mainList), soccerCountLabel:cnt(soccerList), betgetCountLabel:cnt(betgetList),
+      toggleLosses:()=>this.toggleLosses(),
+      hideLossesLabel: HL ? "Show all" : "Hide losses",
+      hideLossesStyle: `border:1px solid ${HL?"#18181b":"#e2e2e5"};background:${HL?"#18181b":"#fff"};color:${HL?"#fff":"#52525b"};border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;`
+    };
+  }
+}
+</script>
+</body>
+</html>
