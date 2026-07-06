@@ -1,706 +1,1687 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;}
-  html{color-scheme:light;}
-  html,body{margin:0;padding:0;}
-  body{background:#f4f4f5;color:#18181b;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-  a{color:#0f766e;text-decoration:none;}
-  a:hover{color:#115e59;}
-  summary{list-style:none;}
-  summary::-webkit-details-marker{display:none;}
-  input,select,button{font-family:inherit;}
-  input:focus,select:focus{outline:none;border-color:#18181b;box-shadow:0 0 0 3px rgba(24,24,27,.07);}
-  input[type=number]::-webkit-inner-spin-button{opacity:.3;}
-</style>
-</helmet>
+// GENERATED from dc-runtime/src/*.ts — do not edit. Rebuild with `cd dc-runtime && bun run build`.
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
-<div style="max-width:1060px;margin:0 auto;padding:30px 22px 90px;">
-
-  <header style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;">
-    <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;color:#0f172a;">Promo Converter</h1>
-    <div style="display:flex;align-items:center;gap:9px;">
-      <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a93;">Requests left</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:5px 11px;color:#0f172a;">{{ apiQuota }}</span>
-    </div>
-  </header>
-
-  <div style="margin-top:22px;">
-    <div style="display:inline-flex;flex-wrap:wrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;">
-      <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
-      <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>3-Way Soccer</button>
-      <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
-    </div>
-  </div>
-
-  <!-- ============ MAIN BOOST ============ -->
-  <div style="{{ mainPanelStyle }}">
-    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
-      <div ref="{{ mainFormRef }}">
-        <div style="margin-bottom:18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Source Book</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mb_book }}" as="c" hint-placeholder-count="4"><span data-field="mb_book" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-        <div style="margin-bottom:18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Promo Type</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mb_strat }}" as="c" hint-placeholder-count="3"><span data-field="mb_strat" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;">
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Wager Amount</div>
-            <div style="position:relative;">
-              <span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span>
-              <input data-field="wager" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;">
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost Value</div>
-            <div style="position:relative;">
-              <input data-field="boost" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 28px 0 12px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;">
-              <span style="position:absolute;right:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">%</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:20px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Hedge Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— Any = every book except your source</span></div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_hedge }}" as="c" hint-placeholder-count="5"><span data-value="{{ c.value }}" onClick="{{ toggleHedge }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-
-        <div style="margin-top:18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sports <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— none = all</span></div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_mainSports }}" as="c" hint-placeholder-count="5"><span data-field="mainSports" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid #efeff1;">
-          <button onClick="{{ scanMain }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
-          <span style="font-size:13px;color:#71717a;">{{ mainStatus }}</span>
-        </div>
-      </div>
-    </div>
-
-    <sc-if value="{{ mainMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ mainMsg }}</div></sc-if>
-    <sc-if value="{{ mainShowHint }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Configure your promo above, then <strong style="color:#71717a;">Scan</strong> to surface hedge opportunities.</div></sc-if>
-
-    <sc-if value="{{ mainHasResults }}" hint-placeholder-val="">
-      <div style="margin-top:22px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ mainCountLabel }}</span>
-          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
-        </div>
-        <sc-for list="{{ mainList }}" as="r" hint-placeholder-count="0">
-          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
-            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
-              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
-              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
-            </summary>
-            <div style="padding:2px 16px 16px;">
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
-                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="2">
-                  <div style="{{ leg.cardStyle }}">
-                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
-                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
-                    <sc-if value="{{ leg.sub }}" hint-placeholder-val=""><div style="font-size:12px;font-style:italic;color:#71717a;margin:1px 0 6px;">{{ leg.sub }}</div></sc-if>
-                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
-                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
-                  </div>
-                </sc-for>
-              </div>
-              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
-                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="1"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
-              </div>
-            </div>
-          </details>
-        </sc-for>
-      </div>
-    </sc-if>
-  </div>
-
-  <!-- ============ 3-WAY SOCCER ============ -->
-  <div style="{{ soccerPanelStyle }}">
-    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
-      <div ref="{{ soccerFormRef }}">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
-
-          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
-            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#0369a1;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#0ea5e9;"></span>Bet 1</div>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Book <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· pick one</span></div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book1 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type1 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-              </div>
-              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-            </div>
-          </div>
-
-          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
-            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>Bet 2</div>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">none = all</span></div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book2 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book2" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type2 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type2" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-              </div>
-              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-            </div>
-          </div>
-
-          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
-            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#b45309;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;"></span>Bet 3</div>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">none = all</span></div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_book3 }}" as="c" hint-placeholder-count="4"><span data-field="sc_book3" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_sc_type3 }}" as="c" hint-placeholder-count="4"><span data-field="sc_type3" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="sc_boost3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
-                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Stake</div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_stake3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-              </div>
-              <div><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="sc_cap3" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:20px;border-top:1px solid #efeff1;">
-          <button onClick="{{ scanSoccer }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
-          <span style="font-size:13px;color:#71717a;">{{ soccerStatus }}</span>
-        </div>
-      </div>
-    </div>
-
-    <sc-if value="{{ soccerMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ soccerMsg }}</div></sc-if>
-    <sc-if value="{{ soccerShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Set up all three legs, then <strong style="color:#71717a;">Scan</strong> for 3-way World Cup hedges.</div></sc-if>
-
-    <sc-if value="{{ soccerHasResults }}" hint-placeholder-val="">
-      <div style="margin-top:22px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ soccerCountLabel }}</span>
-          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
-        </div>
-        <sc-for list="{{ soccerList }}" as="r" hint-placeholder-count="0">
-          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
-            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
-              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
-              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
-            </summary>
-            <div style="padding:2px 16px 16px;">
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
-                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="3">
-                  <div style="{{ leg.cardStyle }}">
-                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
-                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
-                    <sc-if value="{{ leg.sub }}" hint-placeholder-val=""><div style="font-size:12px;font-style:italic;color:#71717a;margin:1px 0 6px;">{{ leg.sub }}</div></sc-if>
-                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
-                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
-                  </div>
-                </sc-for>
-              </div>
-              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
-                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="1"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
-              </div>
-            </div>
-          </details>
-        </sc-for>
-      </div>
-    </sc-if>
-  </div>
-
-  <!-- ============ BET & GET ============ -->
-  <div style="{{ betgetPanelStyle }}">
-    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
-      <div ref="{{ betgetFormRef }}">
-        <div style="margin-bottom:18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Book</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_bg_book }}" as="c" hint-placeholder-count="4"><span data-field="bg_book" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;">
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Qualifying Stake</div>
-            <div style="position:relative;"><span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span><input data-field="wager" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;"></div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Bonus Value</div>
-            <div style="position:relative;"><span style="position:absolute;left:12px;top:0;height:42px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#a1a1aa;pointer-events:none;">$</span><input data-field="bonus" type="number" min="0" step="5" placeholder="0" style="width:100%;height:42px;padding:0 12px 0 26px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;font-family:'IBM Plex Mono',monospace;"></div>
-          </div>
-        </div>
-        <div style="margin-top:20px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sports <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— none = all</span></div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_bg_sports }}" as="c" hint-placeholder-count="5"><span data-field="bg_sports" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid #efeff1;">
-          <button onClick="{{ scanBetGet }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
-          <span style="font-size:13px;color:#71717a;">{{ betgetStatus }}</span>
-        </div>
-      </div>
-    </div>
-
-    <sc-if value="{{ betgetMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ betgetMsg }}</div></sc-if>
-    <sc-if value="{{ betgetShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Enter your qualifier and bonus, then <strong style="color:#71717a;">Scan</strong> for the cheapest path.</div></sc-if>
-
-    <sc-if value="{{ betgetHasResults }}" hint-placeholder-val="">
-      <div style="margin-top:22px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ betgetCountLabel }}</span>
-          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
-        </div>
-        <sc-for list="{{ betgetList }}" as="r" hint-placeholder-count="0">
-          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
-            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
-              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
-              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
-            </summary>
-            <div style="padding:2px 16px 16px;">
-              <sc-if value="{{ r.caption }}" hint-placeholder-val=""><div style="font-size:12px;color:#71717a;margin-bottom:10px;">{{ r.caption }}</div></sc-if>
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
-                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="2">
-                  <div style="{{ leg.cardStyle }}">
-                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
-                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
-                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
-                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
-                  </div>
-                </sc-for>
-              </div>
-              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
-                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="2"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
-              </div>
-            </div>
-          </details>
-        </sc-for>
-      </div>
-    </sc-if>
-  </div>
-
-  <p style="margin-top:30px;font-size:12px;color:#a8a8af;line-height:1.6;">Times shown in CT · window = today + next 2 days · results with profit &gt; −$10 surfaced (near-arb included) · Bet &amp; Get net value assumes 65% bonus conversion. Odds cached 5 min to preserve quota.</p>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;lookaheadDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:14,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;noSweatConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;betGetConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;minProfit&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:-10,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;}}">
-const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm" };
-const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup", "Wimbledon (ATP)":"tennis_atp_wimbledon", "Wimbledon (WTA)":"tennis_wta_wimbledon" };
-const BOOK_LABELS = Object.keys(book_map);
-const SPORT_LABELS = Object.keys(sports_map);
-const MAIN_PROMOS = [{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
-const SOCCER_PROMOS = [{value:"Straight Cash",label:"Straight Cash"},{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
-const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0faf3",bd:"#c9ecd6",ac:"#15803d"}, warning:{bg:"#fff8eb",bd:"#f2e2b3",ac:"#b45309"} };
-
-class Component extends DCLogic {
-  state = {
-    apiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true,
-    chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set() },
-    mainResults:[], soccerResults:[], betgetResults:[],
-    mainMsg:"", soccerMsg:"", betgetMsg:"",
-    mainScanning:false, soccerScanning:false, betgetScanning:false
-  };
-
-  constructor(props){ super(props); this._cache={};
-    this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); }
-
-  componentDidMount(){
-    const injected = (typeof window!=="undefined" && window.ODDS_API_KEY) ? String(window.ODDS_API_KEY) : "";
-    if(injected){ this.setState({apiKey:injected}); return; }
-    try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.setState({apiKey:k}); }catch(e){}
+  // src/react.ts
+  function getReact() {
+    const R = window.React;
+    if (!R) throw new Error("dc-runtime: window.React is not available yet");
+    return R;
   }
-
-  noSweat(){ return this.props.noSweatConversion ?? 0.65; }
-  betGet(){ return this.props.betGetConversion ?? 0.65; }
-  thresh(){ return this.props.minProfit ?? -10.0; }
-  lookaheadDays(){ return this.props.lookaheadDays ?? 2; }
-
-  mult(p){ return p>0 ? p/100 : 100/Math.abs(p); }
-  priceStr(p){ return (p>=0?"+":"")+p; }
-  money(x){ return "$"+Number(x).toFixed(2); }
-  centralKeyFromDate(d){ const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d); const g=t=>+p.find(x=>x.type===t).value; return g("year")*10000+g("month")*100+g("day"); }
-  centralKey(str){ return this.centralKeyFromDate(new Date(str)); }
-  dateWindow(days){ const now=new Date(); return { todayKey:this.centralKeyFromDate(now), endKey:this.centralKeyFromDate(new Date(now.getTime()+days*86400000)) }; }
-  gameNotStarted(str){ return new Date(str) > new Date(); }
-  fmtTime(str){ const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:true}).formatToParts(new Date(str)); const g=t=>parts.find(x=>x.type===t).value; return `${g("month")}/${g("day")} ${g("hour")}:${g("minute")} ${g("dayPeriod")}`; }
-
-  async fetchOdds(sportKey, market="h2h"){
-    const ck=sportKey+"|"+market, now=Date.now(), c=this._cache[ck];
-    if(c && now-c.t<300000) return c.v;
-    const url=`api/odds?sport=${encodeURIComponent(sportKey)}&market=${encodeURIComponent(market)}`;
-    let res;
-    try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API (possible CORS or connection issue)."); }
-    if(!res.ok){
-      if(res.status===401) throw new Error("Server has no API key set (401) — add the ODDS_API_KEY env var on your host.");
-      if(res.status===422) throw new Error(`No data for ${sportKey} (422 — sport may be out of season).`);
-      if(res.status===429) throw new Error("API quota exceeded (429).");
-      throw new Error("The Odds API returned HTTP "+res.status+".");
-    }
-    const data=await res.json();
-    const remaining=res.headers.get("x-requests-remaining")||"0";
-    const v=[data, remaining]; this._cache[ck]={t:now,v}; return v;
+  function getReactDOM() {
+    const RD = window.ReactDOM;
+    if (!RD) throw new Error("dc-runtime: window.ReactDOM is not available yet");
+    return RD;
   }
+  var h = ((...args) => getReact().createElement(
+    ...args
+  ));
 
-  buildFlatH2h(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
-  buildFlat3way(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m||m.outcomes.length!==3) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
-
-  async runPromoScan(p){
-    const CONV_NOSWEAT=this.noSweat(), TH=this.thresh();
-    const source_book_key=book_map[p.book];
-    const allowed_hedge_keys = p.hedge_books.length ? p.hedge_books.map(b=>book_map[b]).filter(v=>v!==source_book_key) : Object.values(book_map).filter(v=>v!==source_book_key);
-    const allowed_keys=[source_book_key,...allowed_hedge_keys];
-    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
-    const all_opps=[];
-    for(const sport_label of p.sports){
-      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
-      if(!games) continue; this.setState({apiQuota:remaining});
-      for(const game of games){
-        if(!this.gameNotStarted(game.commence_time)) continue;
-        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
-        const flat=this.buildFlatH2h(game,allowed_keys); if(!flat.length) continue;
-        const game_label=`${game.away_team||"Away"} vs ${game.home_team||"Home"}`;
-        const game_time=this.fmtTime(game.commence_time);
-        const unique=[...new Set(flat.map(o=>o.team))];
-        if(unique.length===2){
-          const source_odds=flat.filter(o=>o.book_key===source_book_key);
-          const hedge_odds=flat.filter(o=>allowed_hedge_keys.includes(o.book_key));
-          for(const s of source_odds){
-            const hedge_teams=unique.filter(t=>t!==s.team); if(!hedge_teams.length) continue;
-            const eligible=hedge_odds.filter(h=>h.team===hedge_teams[0]); if(!eligible.length) continue;
-            const best_h=eligible.reduce((a,b)=>b.price>a.price?b:a);
-            const sm=this.mult(s.price), hm=this.mult(best_h.price);
-            let target_payout, raw_h, exact_profit;
-            if(p.strat==="Profit Boost (%)"){ const sm_eff=sm*(1+p.boost_val/100); target_payout=p.wager*(1+sm_eff); raw_h=target_payout/(1+hm); exact_profit=target_payout-p.wager-raw_h; }
-            else if(p.strat==="Bonus Bet"){ target_payout=p.wager*sm; raw_h=target_payout/(1+hm); exact_profit=target_payout-raw_h; }
-            else { target_payout=p.wager*(1+sm); raw_h=(target_payout-p.wager*CONV_NOSWEAT)/(1+hm); exact_profit=target_payout-p.wager-raw_h; }
-            if(exact_profit>TH){ all_opps.push({game:game_label,sport:sport_label,market_type:"2-way",time:game_time,exact_profit,exact_hedge:raw_h,s_team:s.team,s_book:s.book_title,s_price:s.price,h_book:best_h.book_title,h_team:best_h.team,h_price:best_h.price,wager:p.wager,strat:p.strat,used_boost:p.strat==="Profit Boost (%)"?p.boost_val:0}); }
-          }
-        } else if(unique.length===3){
-          const groups=unique.map(team=>[team, flat.filter(o=>o.team===team)]);
-          for(let i=0;i<groups.length;i++) for(let j=0;j<groups.length;j++){ if(j===i) continue; for(let k=0;k<groups.length;k++){ if(k===i||k===j) continue;
-            for(const o1 of groups[i][1]) for(const o2 of groups[j][1]) for(const o3 of groups[k][1]){
-              const books_used=[o1.book_key,o2.book_key,o3.book_key];
-              if(new Set(books_used).size!==3) continue;
-              if(!books_used.includes(source_book_key)) continue;
-              const all_legs=[o1,o2,o3];
-              const src_idx=all_legs.findIndex(o=>o.book_key===source_book_key);
-              const src_o=all_legs[src_idx];
-              const hedge_os=all_legs.filter((_,n)=>n!==src_idx);
-              const ho1=hedge_os[0], ho2=hedge_os[1];
-              const sm=this.mult(src_o.price), hm1=this.mult(ho1.price), hm2=this.mult(ho2.price);
-              let target_pay,h1_stake,h2_stake,exact_profit;
-              if(p.strat==="Profit Boost (%)"){ const sm_eff=sm*(1+p.boost_val/100); target_pay=p.wager*(1+sm_eff); h1_stake=target_pay/(1+hm1); h2_stake=target_pay/(1+hm2); exact_profit=target_pay-p.wager-h1_stake-h2_stake; }
-              else if(p.strat==="Bonus Bet"){ target_pay=p.wager*sm; h1_stake=target_pay/(1+hm1); h2_stake=target_pay/(1+hm2); exact_profit=target_pay-h1_stake-h2_stake; }
-              else { target_pay=p.wager*(1+sm); h1_stake=(target_pay-p.wager*CONV_NOSWEAT)/(1+hm1); h2_stake=(target_pay-p.wager*CONV_NOSWEAT)/(1+hm2); exact_profit=target_pay-p.wager-h1_stake-h2_stake; }
-              if(exact_profit>TH){ all_opps.push({game:game_label,sport:sport_label,market_type:"3-way",time:game_time,exact_profit,wager:p.wager,strat:p.strat,s_team:src_o.team,s_book:src_o.book_title,s_price:src_o.price,exact_w1:p.wager,h1_book:ho1.book_title,h1_team:ho1.team,h1_price:ho1.price,exact_hedge1:h1_stake,h2_book:ho2.book_title,h2_team:ho2.team,h2_price:ho2.price,exact_hedge2:h2_stake,used_boost:p.strat==="Profit Boost (%)"?p.boost_val:0}); }
-            }
-          }}
-        }
-      }
-    }
-    const seen={};
-    for(const op of all_opps){ const key = op.market_type==="3-way" ? op.game+"|"+op.s_book+"|"+[op.s_book,op.h1_book,op.h2_book].sort().join(",") : op.game+"|"+op.s_book+"|"+op.h_book; if(!(key in seen)||op.exact_profit>seen[key].exact_profit) seen[key]=op; }
-    return Object.values(seen);
-  }
-
-  async runSoccerScan(sc){
-    const book1_key=book_map[sc.book1];
-    const book2_keys = sc.book2.length ? sc.book2.map(b=>book_map[b]) : Object.values(book_map);
-    const book3_keys = sc.book3.length ? sc.book3.map(b=>book_map[b]) : Object.values(book_map);
-    const allowed_keys=Object.values(book_map);
-    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
-    const soccer_opps=[];
-    for(const league_label of sc.leagues){
-      const [games,remaining]=await this.fetchOdds(sports_map[league_label],"h2h");
-      if(!games) continue; this.setState({apiQuota:remaining});
-      for(const game of games){
-        if(!this.gameNotStarted(game.commence_time)) continue;
-        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
-        const flat=this.buildFlat3way(game,allowed_keys); if(!flat.length) continue;
-        const unique=[...new Set(flat.map(o=>o.team))]; if(unique.length!==3) continue;
-        const [t1,t2,draw]=unique;
-        const odds_t1=flat.filter(o=>o.team===t1), odds_t2=flat.filter(o=>o.team===t2), odds_draw=flat.filter(o=>o.team===draw);
-        for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
-          if(o1.book_key===o2.book_key||o1.book_key===o3.book_key||o2.book_key===o3.book_key) continue;
-          if(o1.book_key!==book1_key) continue;
-          if(!book2_keys.includes(o2.book_key)) continue;
-          if(!book3_keys.includes(o3.book_key)) continue;
-          const leg_payout=(w_total,strat,boost_pct,m_raw,cap_val)=>{
-            const m_boosted = strat==="Profit Boost (%)" ? m_raw*(1+boost_pct/100) : m_raw;
-            let w_promo,w_cash;
-            if(strat!=="Straight Cash" && cap_val>0 && w_total>cap_val){ w_promo=cap_val; w_cash=w_total-cap_val; }
-            else { w_promo = strat!=="Straight Cash" ? w_total : 0.0; w_cash = strat!=="Straight Cash" ? 0.0 : w_total; }
-            let raw_pay,outlay;
-            if(strat==="Bonus Bet"){ raw_pay=(w_promo*m_boosted)+(w_cash*(1+m_raw)); outlay=w_cash; }
-            else if(strat==="No-Sweat Bet"){ raw_pay=(w_promo*(1+m_raw))+(w_cash*(1+m_raw)); outlay=w_total; }
-            else { raw_pay=(w_promo*(1+m_boosted))+(w_cash*(1+m_raw)); outlay=w_total; }
-            return [raw_pay,outlay,w_promo,w_cash];
-          };
-          const m1_raw=this.mult(o1.price);
-          const [target_pay,outlay1,w1_promo,w1_cash]=leg_payout(sc.wager1,sc.strat1,sc.boost1,m1_raw,sc.cap1_val);
-          const w1_total=sc.wager1;
-          const m2_raw=this.mult(o2.price);
-          const m2_boosted = sc.strat2==="Profit Boost (%)" ? m2_raw*(1+sc.boost2/100) : m2_raw;
-          const div_promo2 = sc.strat2==="Bonus Bet" ? m2_boosted : (1+m2_boosted);
-          const div_cash2 = 1+m2_raw;
-          let w2_promo,w2_cash;
-          if(sc.strat2!=="Straight Cash" && sc.cap2_val>0){ const max2=sc.cap2_val*div_promo2; if(target_pay>max2){ w2_promo=sc.cap2_val; w2_cash=(target_pay-max2)/div_cash2; } else { w2_promo=target_pay/div_promo2; w2_cash=0.0; } }
-          else if(sc.strat2==="Straight Cash"){ w2_promo=0.0; w2_cash=target_pay/div_cash2; }
-          else { w2_promo=target_pay/div_promo2; w2_cash=0.0; }
-          const w2_total=w2_promo+w2_cash;
-          const outlay2 = sc.strat2==="Bonus Bet" ? w2_cash : w2_total;
-          const m3_raw=this.mult(o3.price);
-          const m3_boosted = sc.strat3==="Profit Boost (%)" ? m3_raw*(1+sc.boost3/100) : m3_raw;
-          const div_promo3 = sc.strat3==="Bonus Bet" ? m3_boosted : (1+m3_boosted);
-          const div_cash3 = 1+m3_raw;
-          let w3_promo,w3_cash;
-          if(sc.strat3!=="Straight Cash" && sc.cap3_val>0){ const max3=sc.cap3_val*div_promo3; if(target_pay>max3){ w3_promo=sc.cap3_val; w3_cash=(target_pay-max3)/div_cash3; } else { w3_promo=target_pay/div_promo3; w3_cash=0.0; } }
-          else if(sc.strat3==="Straight Cash"){ w3_promo=0.0; w3_cash=target_pay/div_cash3; }
-          else { w3_promo=target_pay/div_promo3; w3_cash=0.0; }
-          const w3_total=w3_promo+w3_cash;
-          const outlay3 = sc.strat3==="Bonus Bet" ? w3_cash : w3_total;
-          const net_profit=target_pay-(outlay1+outlay2+outlay3);
-          soccer_opps.push({ game:`${game.away_team} vs ${game.home_team}`, time:this.fmtTime(game.commence_time), net_profit,
-            o1_book:o1.book_title,o1_team:o1.team,o1_price:o1.price,o1_wager:w1_total,o1_promo:w1_promo,o1_cash:w1_cash,o1_strat:sc.strat1,o1_boost:sc.strat1==="Profit Boost (%)"?sc.boost1:0,
-            o2_book:o2.book_title,o2_team:o2.team,o2_price:o2.price,o2_wager:w2_total,o2_promo:w2_promo,o2_cash:w2_cash,o2_strat:sc.strat2,o2_boost:sc.strat2==="Profit Boost (%)"?sc.boost2:0,
-            o3_book:o3.book_title,o3_team:o3.team,o3_price:o3.price,o3_wager:w3_total,o3_promo:w3_promo,o3_cash:w3_cash,o3_strat:sc.strat3,o3_boost:sc.strat3==="Profit Boost (%)"?sc.boost3:0 });
-        }
-      }
-    }
-    const seen={};
-    for(const op of soccer_opps){ const key=op.game+"|"+[op.o1_book,op.o2_book,op.o3_book].sort().join(","); if(!(key in seen)||op.net_profit>seen[key].net_profit) seen[key]=op; }
-    return Object.values(seen);
-  }
-
-  async runBetGetScan(bg){
-    const source_book_key=book_map[bg.book];
-    const allowed_hedge_keys=Object.values(book_map).filter(v=>v!==source_book_key);
-    const allowed_keys=[source_book_key,...allowed_hedge_keys];
-    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
-    const bg_opps=[]; const projected=bg.bonus_val*this.betGet();
-    for(const sport_label of bg.sports){
-      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
-      if(!games) continue; this.setState({apiQuota:remaining});
-      for(const game of games){
-        if(!this.gameNotStarted(game.commence_time)) continue;
-        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
-        const flat=this.buildFlatH2h(game,allowed_keys); if(!flat.length) continue;
-        const unique=[...new Set(flat.map(o=>o.team))];
-        const game_label=`${game.away_team} vs ${game.home_team}`, game_time=this.fmtTime(game.commence_time);
-        if(unique.length===3){
-          const odds_t1=flat.filter(o=>o.team===unique[0]), odds_t2=flat.filter(o=>o.team===unique[1]), odds_draw=flat.filter(o=>o.team===unique[2]);
-          for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
-            if(o1.book_key===o2.book_key||o1.book_key===o3.book_key||o2.book_key===o3.book_key) continue;
-            if(o1.book_key!==source_book_key) continue;
-            const sm=this.mult(o1.price), hm1=this.mult(o2.price), hm2=this.mult(o3.price);
-            const target_payout=bg.wager*(1+sm); const h1_stake=target_payout/(1+hm1); const h2_stake=target_payout/(1+hm2);
-            const qualifying_loss=target_payout-bg.wager-h1_stake-h2_stake; const net_value=projected+qualifying_loss;
-            bg_opps.push({game:game_label,sport:sport_label,market_type:"3-way",time:game_time,qualifying_loss,net_value,s_book:o1.book_title,s_team:o1.team,s_price:o1.price,s_wager:bg.wager,h1_book:o2.book_title,h1_team:o2.team,h1_price:o2.price,h1_wager:h1_stake,h2_book:o3.book_title,h2_team:o3.team,h2_price:o3.price,h2_wager:h2_stake});
-          }
-        } else if(unique.length===2){
-          const source_odds=flat.filter(o=>o.book_key===source_book_key);
-          const hedge_odds=flat.filter(o=>allowed_hedge_keys.includes(o.book_key));
-          for(const s of source_odds){
-            const opp=unique.filter(t=>t!==s.team); if(!opp.length) continue;
-            const eligible=hedge_odds.filter(h=>h.team===opp[0]); if(!eligible.length) continue;
-            const best_h=eligible.reduce((a,b)=>b.price>a.price?b:a);
-            const sm=this.mult(s.price), hm=this.mult(best_h.price);
-            const target_payout=bg.wager*(1+sm); const h_stake=target_payout/(1+hm);
-            const qualifying_loss=target_payout-bg.wager-h_stake; const net_value=projected+qualifying_loss;
-            bg_opps.push({game:game_label,sport:sport_label,market_type:"2-way",time:game_time,qualifying_loss,net_value,s_book:s.book_title,s_team:s.team,s_price:s.price,s_wager:bg.wager,h1_book:best_h.book_title,h1_team:best_h.team,h1_price:best_h.price,h1_wager:h_stake});
-          }
-        }
-      }
-    }
-    return bg_opps;
-  }
-
-  buildMainVM(op,i){
-    const profit=op.exact_profit, sign=profit>=0?"+":"";
-    const meta=[op.time, op.market_type];
-    if(op.used_boost>0) meta.push(`+${op.used_boost}% boost`);
-    if(op.strat==="Bonus Bet"){ const bw=op.exact_w1 ?? op.wager ?? 0; const cr=bw>0?profit/bw*100:0; meta.push(`${cr.toFixed(1)}% conv`); }
-    let legs;
-    if(op.market_type==="3-way"){
-      legs=[
-        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_w1)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
-        {tone:"success",title:op.h1_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge1)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
-        {tone:"success",title:op.h2_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge2)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
-      ];
-    } else {
-      legs=[
-        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
-        {tone:"success",title:op.h_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge)}],footer:`${op.h_team} @ ${this.priceStr(op.h_price)}`}
-      ];
-    }
-    return { rank:i+1, game:op.game, meta:meta.join(" · "), profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:"Net Arbitrage Profit",value:this.money(profit),tone:profit>=0?"pos":"neg"}], caption:"" };
-  }
-
-  buildSoccerVM(op,i){
-    const profit=op.net_profit, sign=profit>=0?"+":"";
-    const mk=(tone,book,strat,boost,wager,promo,cash,team,price)=>{
-      const promoLabel = boost>0 ? `${strat} +${boost}%` : strat;
-      const lines=[{label:"Total Bet",value:this.money(wager)}];
-      if(strat!=="Straight Cash"){ lines.push({label:"↳ Promo Stake",value:this.money(promo)}); if(cash>0) lines.push({label:"↳ Cash Top-Up",value:this.money(cash)}); }
-      return {tone,title:book,sub:promoLabel,lines,footer:`${team} @ ${this.priceStr(price)}`};
-    };
-    const legs=[
-      mk("info",op.o1_book,op.o1_strat,op.o1_boost,op.o1_wager,op.o1_promo,op.o1_cash,op.o1_team,op.o1_price),
-      mk("success",op.o2_book,op.o2_strat,op.o2_boost,op.o2_wager,op.o2_promo,op.o2_cash,op.o2_team,op.o2_price),
-      mk("warning",op.o3_book,op.o3_strat,op.o3_boost,op.o3_wager,op.o3_promo,op.o3_cash,op.o3_team,op.o3_price)
-    ];
-    return { rank:i+1, game:op.game, meta:`${op.time} · 3-way`, profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:"Net Profit",value:`${sign}${this.money(profit)}`,tone:profit>=0?"pos":"neg"}], caption:"" };
-  }
-
-  buildBetGetVM(op,i){
-    const nv=op.net_value, sign=nv>=0?"+":"";
-    let legs;
-    if(op.market_type==="3-way"){
-      legs=[
-        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
-        {tone:"success",role:"Hedge Leg 1",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
-        {tone:"success",role:"Hedge Leg 2",title:op.h2_book,lines:[{label:"Bet",value:this.money(op.h2_wager)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
-      ];
-    } else {
-      legs=[
-        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
-        {tone:"success",role:"Hedge Leg",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`}
-      ];
-    }
-    return { rank:i+1, game:op.game, meta:`${op.time} · ${op.market_type}`, profitStr:`${sign}${this.money(nv)}`, profitPos:nv>=0, legs,
-      caption:`League: ${op.sport} · Market: ${op.market_type.toUpperCase()}`,
-      metrics:[{label:"Qualifying Cost (Loss)",value:this.money(op.qualifying_loss),tone:"neutral"},{label:"Net Value Lock (Est. 65% Convert)",value:this.money(nv),tone:nv>=0?"pos":"neg"}] };
-  }
-
-  finalize(vm){
-    vm.profitColor = vm.profitPos ? "#15803d" : "#dc2626";
-    vm.legs = vm.legs.map(l=>({ role:l.role||"", sub:l.sub||"", title:l.title, footer:l.footer, lines:l.lines||[],
-      cardStyle:`background:${TONE[l.tone].bg};border:1px solid ${TONE[l.tone].bd};border-radius:9px;padding:12px 13px;`,
-      titleStyle:`font-weight:700;font-size:13.5px;color:${TONE[l.tone].ac};margin-bottom:6px;` }));
-    vm.metrics = vm.metrics.map(m=>({ label:m.label, value:m.value,
-      boxStyle:"background:#fafafa;border:1px solid #ececef;border-radius:9px;padding:10px 14px;min-width:150px;flex:1;",
-      valStyle:`font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;margin-top:2px;color:${m.tone==="pos"?"#15803d":m.tone==="neg"?"#dc2626":"#18181b"};` }));
-    vm.caption=vm.caption||"";
-    return vm;
-  }
-
-  setActive(t){ this.setState({activeTab:t}); }
-  toggleLosses(){ this.setState({hideLosses:!this.state.hideLosses}); }
-  toggleChip(e){ const el=e.currentTarget, f=el.dataset.field, v=el.dataset.value; let set; if(el.dataset.single==="1"){ set=new Set(this.state.chips[f].has(v)?[]:[v]); } else { set=new Set(this.state.chips[f]); set.has(v)?set.delete(v):set.add(v); } this.setState({chips:{...this.state.chips,[f]:set}}); }
-  toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
-  readForm(ref){ const el=ref&&ref.current, out={}; if(el) el.querySelectorAll("[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; }
-  needKey(setter){ return false; }
-
-  async scanMain(){
-    const f=this.readForm(this.mainFormRef.current);
-    const ch=this.state.chips;
-    const book=[...ch.mb_book][0]||"", strat=[...ch.mb_strat][0]||"";
-    if(!book||!strat){ this.setState({mainMsg:"Please select a source book and promo type.", mainResults:[]}); return; }
-    if(this.needKey(m=>({mainMsg:m}))) return;
-    const sports=[...ch.mainSports];
-    const p={ book, strat, boost_val:parseFloat(f.boost)||0, wager:parseFloat(f.wager)||0, hedge_books: this.state.hedgeAny ? [] : [...ch.mainHedge], sports: sports.length?sports:SPORT_LABELS };
-    this.setState({mainScanning:true, mainMsg:"", mainResults:[]});
-    try{ const opps=await this.runPromoScan(p);
-      const vms=opps.sort((a,b)=>b.exact_profit-a.exact_profit).slice(0,15).map((o,i)=>this.finalize(this.buildMainVM(o,i)));
-      this.setState({mainResults:vms, mainScanning:false, mainMsg: vms.length?"":"No profitable matches found."});
-    }catch(e){ this.setState({mainScanning:false, mainMsg:"Scan error: "+e.message, mainResults:[]}); }
-  }
-
-  async scanSoccer(){
-    const f=this.readForm(this.soccerFormRef.current);
-    const ch=this.state.chips;
-    const book1=[...ch.sc_book1][0]||"", type1=[...ch.sc_type1][0]||"", type2=[...ch.sc_type2][0]||"", type3=[...ch.sc_type3][0]||"";
-    if(!book1||!type1||!type2||!type3){ this.setState({soccerMsg:"Please pick a book for Bet 1 and a promo type for each leg.", soccerResults:[]}); return; }
-    if(this.needKey(m=>({soccerMsg:m}))) return;
-    const sc={ book1, strat1:type1, boost1:parseFloat(f.sc_boost1)||0, wager1:parseFloat(f.sc_stake1)||0, cap1_val:parseFloat(f.sc_cap1)||0,
-      book2:[...ch.sc_book2], strat2:type2, boost2:parseFloat(f.sc_boost2)||0, wager2:parseFloat(f.sc_stake2)||0, cap2_val:parseFloat(f.sc_cap2)||0,
-      book3:[...ch.sc_book3], strat3:type3, boost3:parseFloat(f.sc_boost3)||0, wager3:parseFloat(f.sc_stake3)||0, cap3_val:parseFloat(f.sc_cap3)||0,
-      leagues:["FIFA World Cup"] };
-    this.setState({soccerScanning:true, soccerMsg:"", soccerResults:[]});
-    try{ const opps=await this.runSoccerScan(sc);
-      const vms=opps.sort((a,b)=>b.net_profit-a.net_profit).slice(0,10).map((o,i)=>this.finalize(this.buildSoccerVM(o,i)));
-      this.setState({soccerResults:vms, soccerScanning:false, soccerMsg: vms.length?"":"No matches found for your designated book criteria."});
-    }catch(e){ this.setState({soccerScanning:false, soccerMsg:"Scan error: "+e.message, soccerResults:[]}); }
-  }
-
-  async scanBetGet(){
-    const f=this.readForm(this.betgetFormRef.current);
-    const book=[...this.state.chips.bg_book][0]||"";
-    if(!book){ this.setState({betgetMsg:"Please select a book.", betgetResults:[]}); return; }
-    if(this.needKey(m=>({betgetMsg:m}))) return;
-    const sp=[...this.state.chips.bg_sports];
-    const bg={ book, wager:parseFloat(f.wager)||0, bonus_val:parseFloat(f.bonus)||0, sports: sp.length?sp:SPORT_LABELS };
-    this.setState({betgetScanning:true, betgetMsg:"", betgetResults:[]});
-    try{ const opps=await this.runBetGetScan(bg);
-      const vms=opps.sort((a,b)=>b.net_value-a.net_value).slice(0,10).map((o,i)=>this.finalize(this.buildBetGetVM(o,i)));
-      this.setState({betgetResults:vms, betgetScanning:false, betgetMsg: vms.length?"":"No tight lines found for qualification."});
-    }catch(e){ this.setState({betgetScanning:false, betgetMsg:"Scan error: "+e.message, betgetResults:[]}); }
-  }
-
-  renderVals(){
-    const chip=(field,opts,small)=>opts.map(o=>{ const v=typeof o==="string"?o:o.value, lbl=typeof o==="string"?o:o.label; const sel=this.state.chips[field].has(v);
-        const base = small ? "display:inline-flex;align-items:center;padding:6px 11px;border-radius:999px;font-size:12px;cursor:pointer;user-select:none;transition:all .12s;" : "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;transition:all .12s;";
-        const skin = sel ? "background:#18181b;color:#fff;border:1px solid #18181b;" : "background:#fff;color:#52525b;border:1px solid #e2e2e5;";
-        return {value:v,label:lbl,style:base+skin,styleSm:base+skin}; });
-    const s=this.state, at=s.activeTab, HL=s.hideLosses;
-    const tab=(id)=>{ const active=at===id; return `display:inline-flex;align-items:center;gap:7px;border:none;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:${active?600:500};cursor:pointer;white-space:nowrap;background:${active?"#fff":"transparent"};color:${active?"#18181b":"#71717a"};box-shadow:${active?"0 1px 3px rgba(0,0,0,.13)":"none"};`; };
-    const panel=(id)=> at===id ? "display:block;" : "display:none;";
-    const filt=(list)=> HL ? list.filter(r=>r.profitPos) : list;
-    const cnt=(list)=>{ const n=list.length; return `${n} ${n===1?"opportunity":"opportunities"}`; };
-    const mainList=filt(s.mainResults), soccerList=filt(s.soccerResults), betgetList=filt(s.betgetResults);
-    const HA=s.hedgeAny, source=[...s.chips.mb_book][0]||"";
-    const hedgeStyle=(sel,disabled)=> "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;user-select:none;transition:all .12s;cursor:"+(disabled?"not-allowed":"pointer")+";"+(disabled?"background:#f4f4f5;color:#c4c4c9;border:1px solid #ececef;":(sel?"background:#18181b;color:#fff;border:1px solid #18181b;":"background:#fff;color:#52525b;border:1px solid #e2e2e5;"));
-    const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
+  // src/parse.ts
+  function parseDcDocument(doc) {
+    const dc = doc.querySelector("x-dc");
+    if (!dc) return null;
+    const scriptEl = doc.querySelector("script[data-dc-script]");
+    const { props, preview } = parseDataProps(
+      scriptEl?.getAttribute("data-props") ?? null
+    );
     return {
-      apiQuota:s.apiQuota, toggleChip:(e)=>this.toggleChip(e), toggleHedge:(e)=>this.toggleHedge(e),
-      mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
-      tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"),
-      mainTabStyle:tab("main"), soccerTabStyle:tab("soccer"), betgetTabStyle:tab("betget"),
-      mainPanelStyle:panel("main"), soccerPanelStyle:panel("soccer"), betgetPanelStyle:panel("betget"),
-      chips_mb_book:chip("mb_book",BOOK_LABELS,false), chips_mb_strat:chip("mb_strat",MAIN_PROMOS,false),
-      chips_hedge, chips_mainSports:chip("mainSports",SPORT_LABELS,false),
-      chips_sc_book1:chip("sc_book1",BOOK_LABELS,true), chips_sc_book2:chip("sc_book2",BOOK_LABELS,true), chips_sc_book3:chip("sc_book3",BOOK_LABELS,true),
-      chips_sc_type1:chip("sc_type1",SOCCER_PROMOS,true), chips_sc_type2:chip("sc_type2",SOCCER_PROMOS,true), chips_sc_type3:chip("sc_type3",SOCCER_PROMOS,true),
-      chips_bg_book:chip("bg_book",BOOK_LABELS,false), chips_bg_sports:chip("bg_sports",SPORT_LABELS,false),
-      scanMain:()=>this.scanMain(), scanSoccer:()=>this.scanSoccer(), scanBetGet:()=>this.scanBetGet(),
-      mainStatus:s.mainScanning?"Scanning…":"", soccerStatus:s.soccerScanning?"Scanning…":"", betgetStatus:s.betgetScanning?"Scanning…":"",
-      mainMsg:s.mainMsg, soccerMsg:s.soccerMsg, betgetMsg:s.betgetMsg,
-      mainShowHint: s.mainResults.length===0 && !s.mainScanning && !s.mainMsg,
-      soccerShowHint: s.soccerResults.length===0 && !s.soccerScanning && !s.soccerMsg,
-      betgetShowHint: s.betgetResults.length===0 && !s.betgetScanning && !s.betgetMsg,
-      mainHasResults:s.mainResults.length>0, soccerHasResults:s.soccerResults.length>0, betgetHasResults:s.betgetResults.length>0,
-      mainList, soccerList, betgetList,
-      mainCountLabel:cnt(mainList), soccerCountLabel:cnt(soccerList), betgetCountLabel:cnt(betgetList),
-      toggleLosses:()=>this.toggleLosses(),
-      hideLossesLabel: HL ? "Show all" : "Hide losses",
-      hideLossesStyle: `border:1px solid ${HL?"#18181b":"#e2e2e5"};background:${HL?"#18181b":"#fff"};color:${HL?"#fff":"#52525b"};border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;`
+      template: dc.innerHTML,
+      js: scriptEl ? scriptEl.textContent || "" : "",
+      props,
+      preview
     };
   }
-}
-</script>
-</body>
-</html>
+  function parseDcText(src) {
+    const openMatch = /<x-dc(?:\s[^>]*)?>/.exec(src);
+    if (!openMatch) return null;
+    const close = src.lastIndexOf("</x-dc>");
+    if (close === -1 || close < openMatch.index) return null;
+    const template = src.slice(openMatch.index + openMatch[0].length, close);
+    const doc = new DOMParser().parseFromString(src, "text/html");
+    const scriptEl = doc.querySelector("script[data-dc-script]");
+    const { props, preview } = parseDataProps(
+      scriptEl?.getAttribute("data-props") ?? null
+    );
+    return {
+      template,
+      js: scriptEl ? scriptEl.textContent || "" : "",
+      props,
+      preview
+    };
+  }
+  function parseDataProps(raw) {
+    if (!raw) return { props: null, preview: null };
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return { props: null, preview: null };
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { props: null, preview: null };
+    }
+    const obj = parsed;
+    const preview = obj.$preview && typeof obj.$preview === "object" ? obj.$preview : null;
+    const rest = {};
+    for (const k of Object.keys(obj)) {
+      if (k[0] !== "$") rest[k] = obj[k];
+    }
+    return { props: Object.keys(rest).length ? rest : null, preview };
+  }
+  function dcNameFromPath(pathname) {
+    let p = pathname || "";
+    try {
+      p = decodeURIComponent(p);
+    } catch {
+    }
+    const base = p.split("/").pop() || "Root";
+    return base.replace(/\.dc\.html$/, "").replace(/\.html?$/, "") || "Root";
+  }
+
+  // src/boot.ts
+  var BASE_CSS = `
+    .sc-placeholder{background:color-mix(in srgb,currentColor 8%,transparent);
+      border:1px solid color-mix(in srgb,currentColor 50%,transparent);
+      border-radius:2px;box-sizing:border-box;overflow:hidden}
+    @keyframes sc-shine{0%{background-position:100% 50%}100%{background-position:0% 50%}}
+    html.sc-dc-streaming .sc-placeholder,
+    html.sc-dc-streaming .sc-interp.sc-missing{position:relative;
+      background:color-mix(in srgb,currentColor 5%,transparent);
+      border-color:transparent}
+    html.sc-dc-streaming .sc-placeholder::before,
+    html.sc-dc-streaming .sc-interp.sc-missing::before{content:'';
+      position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(90deg,rgba(217,119,87,0) 25%,rgba(247,225,211,.95) 37%,rgba(217,119,87,0) 63%);
+      background-size:400% 100%;animation:sc-shine 1.4s ease infinite}
+    html.sc-dc-streaming .sc-placeholder:nth-child(n+9 of .sc-placeholder)::before,
+    html.sc-dc-streaming .sc-interp.sc-missing:nth-child(n+9 of .sc-interp.sc-missing)::before{animation:none;
+      background:color-mix(in srgb,currentColor 8%,transparent)}
+    .sc-placeholder-error{padding:4px 8px;font:11px/1.4 ui-monospace,monospace;
+      color:color-mix(in srgb,currentColor 70%,transparent);word-break:break-word}
+    .sc-interp.sc-missing{display:inline-block;width:2em;height:1em;overflow:hidden;
+      vertical-align:text-bottom;background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.5);
+      border-radius:2px;box-sizing:border-box;color:transparent;
+      user-select:none}
+    .sc-interp.sc-unresolved{font-family:ui-monospace,monospace;font-size:.85em;
+      color:color-mix(in srgb,currentColor 50%,transparent);
+      background:color-mix(in srgb,currentColor 10%,transparent);border-radius:3px;
+      padding:0 3px}
+    .sc-host.sc-has-error{position:relative}
+    .sc-logic-error{position:absolute;top:8px;left:8px;z-index:2147483647;max-width:60ch;
+      padding:6px 10px;background:#b00020;color:#fff;font:12px/1.4 ui-monospace,monospace;
+      border-radius:4px;white-space:pre-wrap;pointer-events:none}
+    /* Mirrors PRINT_BASELINE_CSS in apps/web deck-stage-export.ts \u2014 keep both
+       in sync until dc-runtime regains a build step. */
+    @media print {
+      @page { margin: 0.5cm; }
+      figure, table { break-inside: avoid; }
+      #dc-root, #dc-root > .sc-host { height: auto; }
+      *, *::before, *::after {
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
+        backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        animation-delay: -99s !important; animation-duration: .001s !important;
+        animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+        animation-play-state: running !important; transition-duration: 0s !important;
+      }
+    }
+  `;
+  var FULL_PAGE_CSS = "html,body{height:100%;margin:0}#dc-root,#dc-root>.sc-host{height:100%}";
+  function rootNameForDocument(doc, loc) {
+    let bootPath = loc.pathname || "";
+    if (!/\.dc\.html?$/i.test(safeDecode(bootPath))) {
+      try {
+        bootPath = new URL(doc.baseURI || "/").pathname;
+      } catch {
+      }
+    }
+    return dcNameFromPath(bootPath);
+  }
+  function safeDecode(s) {
+    try {
+      return decodeURIComponent(s);
+    } catch {
+      return s;
+    }
+  }
+  function boot(runtime, doc = document) {
+    const parsed = parseDcDocument(doc);
+    if (!parsed) return null;
+    const React = getReact();
+    const rootName = rootNameForDocument(doc, location);
+    runtime.markFetched(rootName);
+    runtime.setRootName(rootName);
+    runtime.adoptParsed(rootName, parsed);
+    fetch(location.href).then((res) => res.ok ? res.text() : "").then((t) => {
+      const raw = t ? parseDcText(t) : null;
+      if (raw?.template) runtime.updateHtml(rootName, raw.template);
+    }).catch(() => {
+    });
+    const dc = doc.querySelector("x-dc");
+    const hostEl = doc.createElement("div");
+    hostEl.id = "dc-root";
+    dc.replaceWith(hostEl);
+    if (!parsed.preview) {
+      const s = doc.createElement("style");
+      s.textContent = FULL_PAGE_CSS;
+      doc.head.appendChild(s);
+    }
+    const Root = runtime.getDC(rootName);
+    const entry = runtime.registry.get(rootName);
+    function StandaloneRoot() {
+      const [, setTick] = React.useState(0);
+      React.useEffect(() => {
+        const sub = () => setTick((n) => n + 1);
+        entry.subs.add(sub);
+        return () => {
+          entry.subs.delete(sub);
+        };
+      }, []);
+      const defaults = React.useMemo(() => {
+        const d = {};
+        for (const k in entry.propsMeta || {}) {
+          const v = entry.propsMeta?.[k]?.default;
+          if (v !== void 0) d[k] = v;
+        }
+        return d;
+      }, [entry.propsMeta]);
+      return h(Root, { ...defaults, ...entry.propOverrides || {} });
+    }
+    const ReactDOM = getReactDOM();
+    if (ReactDOM.createRoot)
+      ReactDOM.createRoot(hostEl).render(h(StandaloneRoot));
+    else ReactDOM.render(h(StandaloneRoot), hostEl);
+    return rootName;
+  }
+
+  // src/expr.ts
+  var IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*/;
+  var NUMBER_RE = /^-?\d+(\.\d+)?$/;
+  function resolve(vals, src) {
+    const expr = String(src).trim();
+    if (!expr) return void 0;
+    if (expr[0] === "(" && expr[expr.length - 1] === ")" && parensWrapWhole(expr)) {
+      return resolve(vals, expr.slice(1, -1));
+    }
+    const eq = findTopLevelEquality(expr);
+    if (eq) {
+      const lv = resolve(vals, expr.slice(0, eq.index));
+      const rv = resolve(vals, expr.slice(eq.index + eq.op.length));
+      switch (eq.op) {
+        case "===":
+          return lv === rv;
+        case "!==":
+          return lv !== rv;
+        case "==":
+          return lv == rv;
+        default:
+          return lv != rv;
+      }
+    }
+    if (expr[0] === "!") return !resolve(vals, expr.slice(1));
+    if (expr === "true") return true;
+    if (expr === "false") return false;
+    if (expr === "null") return null;
+    if (expr === "undefined") return void 0;
+    if (NUMBER_RE.test(expr)) return Number(expr);
+    if (expr.length >= 2 && (expr[0] === '"' || expr[0] === "'") && expr[expr.length - 1] === expr[0]) {
+      return expr.slice(1, -1);
+    }
+    return resolvePath(vals, expr);
+  }
+  function parensWrapWhole(expr) {
+    let depth = 0;
+    for (let i = 0; i < expr.length - 1; i++) {
+      if (expr[i] === "(") depth++;
+      else if (expr[i] === ")") {
+        depth--;
+        if (depth === 0) return false;
+      }
+    }
+    return true;
+  }
+  function findTopLevelEquality(expr) {
+    let depth = 0;
+    for (let i = 0; i < expr.length; i++) {
+      const c = expr[i];
+      if (c === "[" || c === "(") depth++;
+      else if (c === "]" || c === ")") depth--;
+      else if (depth === 0 && (c === "=" || c === "!") && expr[i + 1] === "=") {
+        if (i > 0 && (expr[i - 1] === "=" || expr[i - 1] === "!")) continue;
+        if (!expr.slice(0, i).trim()) continue;
+        const op = expr[i + 2] === "=" ? c + "==" : c + "=";
+        return { index: i, op };
+      }
+    }
+    return null;
+  }
+  function resolvePath(vals, expr) {
+    const head = expr.match(IDENT_RE);
+    if (!head) return void 0;
+    let cur = vals == null ? void 0 : vals[head[0]];
+    let i = head[0].length;
+    while (i < expr.length) {
+      if (expr[i] === ".") {
+        const m = expr.slice(i + 1).match(IDENT_RE) || expr.slice(i + 1).match(/^\d+/);
+        if (!m) return void 0;
+        cur = cur == null ? void 0 : cur[m[0]];
+        i += 1 + m[0].length;
+      } else if (expr[i] === "[") {
+        let depth = 1;
+        let j = i + 1;
+        while (j < expr.length && depth > 0) {
+          if (expr[j] === "[") depth++;
+          else if (expr[j] === "]") {
+            depth--;
+            if (depth === 0) break;
+          }
+          j++;
+        }
+        if (depth !== 0) return void 0;
+        const key = resolve(vals, expr.slice(i + 1, j));
+        cur = cur == null ? void 0 : cur[key];
+        i = j + 1;
+      } else {
+        return void 0;
+      }
+    }
+    return cur;
+  }
+
+  // src/encode.ts
+  var CAMEL_ATTR = "sc-camel-";
+  var INLINE_TEXT_TAGS = new Set(
+    "a abbr b bdi bdo br cite code del dfn em i ins kbd mark q s samp small span strike strong sub sup u var wbr".split(
+      " "
+    )
+  );
+  var RAW_WRAP = {
+    select: "sc-raw-select",
+    table: "sc-raw-table",
+    tbody: "sc-raw-tbody",
+    thead: "sc-raw-thead",
+    tfoot: "sc-raw-tfoot",
+    tr: "sc-raw-tr",
+    td: "sc-raw-td",
+    th: "sc-raw-th",
+    caption: "sc-raw-caption"
+  };
+  var RAW_UNWRAP = Object.fromEntries(
+    Object.entries(RAW_WRAP).map(([k, v]) => [v, k])
+  );
+  var EVENT_MAP = {
+    onclick: "onClick",
+    onchange: "onChange",
+    oninput: "onInput",
+    onsubmit: "onSubmit",
+    onkeydown: "onKeyDown",
+    onkeyup: "onKeyUp",
+    onkeypress: "onKeyPress",
+    onmousedown: "onMouseDown",
+    onmouseup: "onMouseUp",
+    onmouseenter: "onMouseEnter",
+    onmouseleave: "onMouseLeave",
+    onfocus: "onFocus",
+    onblur: "onBlur",
+    ondoubleclick: "onDoubleClick",
+    oncontextmenu: "onContextMenu"
+  };
+  var ATTRS = `(?:[^>"']|"[^"]*"|'[^']*')*`;
+  var IMPORT_SELF_CLOSE_RE = new RegExp(
+    "<(x-import|dc-import)(" + ATTRS + ")/>",
+    "gi"
+  );
+  var CAMEL_ATTR_RE = /(\s)([a-z]+[A-Z][A-Za-z0-9]*)(\s*=)/g;
+  function encodeCase(html) {
+    html = html.replace(
+      IMPORT_SELF_CLOSE_RE,
+      (_, t, a) => "<" + t + a + "></" + t + ">"
+    );
+    html = html.replace(/<helmet(\s|>)/gi, "<sc-helmet$1");
+    html = html.replace(/<\/helmet\s*>/gi, "</sc-helmet>");
+    html = html.replace(
+      CAMEL_ATTR_RE,
+      (_, sp, name, eq) => sp + CAMEL_ATTR + name.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase()) + eq
+    );
+    for (const [real, alias] of Object.entries(RAW_WRAP)) {
+      html = html.replace(
+        new RegExp("(</?)" + real + "(?=[\\s>])", "gi"),
+        "$1" + alias
+      );
+    }
+    return html;
+  }
+  function kebabToCamel(s) {
+    return s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  }
+  function cssToObj(css) {
+    const o = {};
+    for (const decl of css.split(";")) {
+      const i = decl.indexOf(":");
+      if (i < 0) continue;
+      const prop = decl.slice(0, i).trim();
+      o[prop.startsWith("--") ? prop : kebabToCamel(prop)] = decl.slice(i + 1).trim();
+    }
+    return o;
+  }
+  function compileAttr(raw) {
+    const whole = raw.match(/^\s*\{\{([\s\S]+?)\}\}\s*$/);
+    if (whole) {
+      const path = whole[1];
+      return (vals) => resolve(vals, path);
+    }
+    if (raw.includes("{{")) {
+      const parts = raw.split(/\{\{([\s\S]+?)\}\}/g);
+      return (vals) => parts.map((s, i) => i & 1 ? resolve(vals, s) ?? "" : s).join("");
+    }
+    return () => raw;
+  }
+
+  // src/compile.ts
+  function collectProps(node, kind, host) {
+    const propGetters = [];
+    const pseudoClasses = [];
+    let hintSize = null;
+    for (const { name, value } of [...node.attributes]) {
+      if (name === "sc-name" || name === "data-dc-tpl") continue;
+      let key = name;
+      if (key.startsWith(CAMEL_ATTR))
+        key = kebabToCamel(key.slice(CAMEL_ATTR.length));
+      if (key === "hint-size") {
+        hintSize = value;
+        continue;
+      }
+      if (key.startsWith("style-")) {
+        pseudoClasses.push(host.pseudoClass(key.slice(6), value));
+        continue;
+      }
+      if (kind !== "dom") {
+        if (key.includes("-") && !(kind === "x-import" && (key.startsWith("aria-") || key.startsWith("data-"))))
+          key = kebabToCamel(key);
+      } else {
+        if (key === "class") key = "className";
+        else if (key === "for") key = "htmlFor";
+        else if (key.startsWith("on"))
+          key = EVENT_MAP[key] || "on" + key[2].toUpperCase() + key.slice(3);
+      }
+      propGetters.push([key, compileAttr(value)]);
+    }
+    return { propGetters, pseudoClasses, hintSize };
+  }
+  var HOST_STYLE_PROPS = /* @__PURE__ */ new Set([
+    "position",
+    "left",
+    "right",
+    "top",
+    "bottom",
+    "inset",
+    "width",
+    "height",
+    "z-index",
+    "transform"
+  ]);
+  function hostPositionStyle(style) {
+    const all = typeof style === "string" ? cssToObj(style) : style != null && typeof style === "object" ? style : null;
+    if (!all) return void 0;
+    const out = {};
+    for (const [k, v] of Object.entries(all)) {
+      const kebab = k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase());
+      if (HOST_STYLE_PROPS.has(kebab)) out[k] = v;
+    }
+    return Object.keys(out).length ? out : void 0;
+  }
+  function compileTemplate(html, host) {
+    const tpl = document.createElement("template");
+    //! nosemgrep: direct-inner-html-assignment
+    tpl.innerHTML = encodeCase(html);
+    let tplN = 0;
+    (function stamp(node) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        node.setAttribute("data-dc-tpl", String(tplN++));
+      }
+      for (const c of node.childNodes) stamp(c);
+    })(tpl.content);
+    const builders = walkChildren(tpl.content, host);
+    const render = ((vals, ctx) => builders.map((b, i) => b(vals || {}, ctx, i)));
+    render.__annotated = tpl.innerHTML;
+    return render;
+  }
+  function walkChildren(node, host) {
+    return [...node.childNodes].map((c) => walk(c, host)).filter((b) => b != null);
+  }
+  function walk(node, host) {
+    if (node.nodeType === Node.TEXT_NODE) return walkText(node);
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+    const el = node;
+    const tag = el.tagName.toLowerCase();
+    if (tag === "sc-for") return walkFor(el, host);
+    if (tag === "sc-if") return walkIf(el, host);
+    if (tag === "x-import") return walkXImport(el, host);
+    if (tag === "sc-helmet") return host.helmet(el);
+    if (tag === "dc-import") return walkComponent(el, host);
+    return walkElement(el, host);
+  }
+  var warnedHoles = /* @__PURE__ */ new Set();
+  function warnUnresolved(ctx, what) {
+    const key = (ctx?.__name || "?") + "\0" + what;
+    if (warnedHoles.has(key)) return;
+    warnedHoles.add(key);
+    console.warn("[dc-runtime] " + (ctx?.__name || "template") + ": " + what);
+  }
+  function walkText(node) {
+    const txt = node.nodeValue ?? "";
+    if (!txt.includes("{{")) {
+      if (!txt.trim() && !txt.includes(" ")) return null;
+      return () => txt;
+    }
+    const parts = txt.split(/\{\{([\s\S]+?)\}\}/g);
+    return (vals, ctx, key) => h(
+      getReact().Fragment,
+      { key },
+      ...parts.map((p, i) => {
+        if (!(i & 1)) return p;
+        const v = resolve(vals, p);
+        if (v === void 0) {
+          if (!ctx?.__streamingNow) {
+            if (document.body?.hasAttribute("data-dc-editor-on")) {
+              return h(
+                "span",
+                { key: i, className: "sc-interp sc-unresolved" },
+                "{{ " + p.trim() + " }}"
+              );
+            }
+            warnUnresolved(
+              ctx,
+              "{{ " + p.trim() + " }} never resolved \u2014 rendered as empty"
+            );
+            return null;
+          }
+          return h(
+            "span",
+            { key: i, className: "sc-interp sc-missing" },
+            p.trim()
+          );
+        }
+        if (getReact().isValidElement(v) || Array.isArray(v)) {
+          return h(getReact().Fragment, { key: i }, v);
+        }
+        if (v === null || typeof v === "boolean") return null;
+        return h("span", { key: i, className: "sc-interp" }, String(v));
+      })
+    );
+  }
+  function walkFor(el, host) {
+    const listGet = compileAttr(el.getAttribute("list") || "");
+    const asName = el.getAttribute("as") || "item";
+    const hintN = parseInt(el.getAttribute("hint-placeholder-count") || "0", 10);
+    const kids = walkChildren(el, host);
+    const listSrc = el.getAttribute("list") || "";
+    return (vals, ctx, key) => {
+      let list = listGet(vals);
+      if (!Array.isArray(list)) {
+        if (!ctx?.__streamingNow) {
+          if (list !== void 0 && list !== null) {
+            warnUnresolved(
+              ctx,
+              'sc-for list="' + listSrc + '" is not an array (' + typeof list + ")"
+            );
+          }
+          list = [];
+        } else {
+          list = hintN > 0 ? Array(hintN).fill(void 0) : [];
+        }
+      }
+      return h(
+        getReact().Fragment,
+        { key },
+        list.map((item, i) => {
+          const sub = { ...vals, [asName]: item, $index: i };
+          return h(
+            getReact().Fragment,
+            { key: i },
+            kids.map((b, j) => b(sub, ctx, j))
+          );
+        })
+      );
+    };
+  }
+  function walkIf(el, host) {
+    const valGet = compileAttr(el.getAttribute("value") || "");
+    const hintRaw = el.getAttribute("hint-placeholder-val");
+    const hintGet = hintRaw != null ? compileAttr(hintRaw) : null;
+    const kids = walkChildren(el, host);
+    return (vals, ctx, key) => {
+      let v = valGet(vals);
+      if (v === void 0 && hintGet && ctx?.__streamingNow) v = hintGet(vals);
+      return v ? h(
+        getReact().Fragment,
+        { key },
+        kids.map((b, j) => b(vals, ctx, j))
+      ) : null;
+    };
+  }
+  function walkComponent(el, host) {
+    const name = el.getAttribute("name") || el.getAttribute("component") || "";
+    el.removeAttribute("name");
+    el.removeAttribute("component");
+    const tplId = el.getAttribute("data-dc-tpl");
+    const styleRaw = el.getAttribute("style");
+    el.removeAttribute("style");
+    const styleGet = styleRaw != null ? compileAttr(styleRaw) : null;
+    const { propGetters, hintSize } = collectProps(el, "dc-import", host);
+    const kids = walkChildren(el, host);
+    return (vals, ctx, key) => {
+      const props = {
+        key,
+        __hintSize: hintSize,
+        __tplId: tplId,
+        __hostStyle: styleGet ? hostPositionStyle(styleGet(vals)) : void 0
+      };
+      for (const [k, g] of propGetters) {
+        const v = g(vals);
+        if (k === "dcProps") {
+          if (v && typeof v === "object") Object.assign(props, v);
+          continue;
+        }
+        props[k] = v;
+      }
+      if (kids.length) props.children = kids.map((b, j) => b(vals, ctx, j));
+      return h(host.component(name), props);
+    };
+  }
+  function walkXImport(el, host) {
+    const globalNameGet = compileAttr(
+      el.getAttribute("component-from-global-scope") || ""
+    );
+    const exportNameGet = compileAttr(
+      el.getAttribute("component") || el.getAttribute("name") || ""
+    );
+    const fromRaw = el.getAttribute("from") || (el.getAttribute("component-from-global-scope") ? "" : el.getAttribute("src") || el.getAttribute("import") || "");
+    const urls = fromRaw.trim() ? fromRaw.trim().split(/\s+/) : [];
+    const url = urls.length ? urls[urls.length - 1] : "";
+    const kindOf = (u) => /\.(jsx|tsx)(\?|#|$)/i.test(u) ? "jsx" : "js";
+    const tplId = el.getAttribute("data-dc-tpl");
+    const styleRaw = el.getAttribute("style");
+    el.removeAttribute("style");
+    const styleGet = styleRaw != null ? compileAttr(styleRaw) : null;
+    const wrap = tplId != null || styleGet != null;
+    const { propGetters, hintSize } = collectProps(el, "x-import", host);
+    const hasContent = el.children.length > 0 || !!(el.textContent || "").trim();
+    const kids = hasContent ? walkChildren(el, host) : [];
+    const urlBindable = fromRaw.includes("{{");
+    if (urls.length && !urlBindable) {
+      let prev;
+      for (const u of urls) prev = host.loadExternal(kindOf(u), u, prev);
+    }
+    const evalName = (g, vals) => {
+      const v = g(vals);
+      const s = v == null ? "" : String(v);
+      return s.includes("{{") ? "" : s;
+    };
+    return (vals, ctx, key) => {
+      const globalName = evalName(globalNameGet, vals);
+      const name = globalName || evalName(exportNameGet, vals);
+      const C = !name || urlBindable ? null : globalName ? host.resolveExternalGlobal(url, globalName) : host.resolveExternal(url, name);
+      const hostStyle = styleGet ? hostPositionStyle(styleGet(vals)) : void 0;
+      const wrapper = wrap ? {
+        key,
+        className: "sc-host-x",
+        "data-dc-tpl": tplId,
+        style: hostStyle || { display: "contents" }
+      } : null;
+      if (!C) {
+        const error = urlBindable ? "x-import `from` cannot contain {{ \u2026 }} \u2014 module URLs are resolved at parse time; use a literal URL" : host.resolveExternalError(url, name);
+        const ph = host.placeholder({
+          key: wrapper ? void 0 : key,
+          name,
+          hintSize,
+          error
+        });
+        return wrapper ? h("div", wrapper, ph) : ph;
+      }
+      const props = wrapper ? {} : { key };
+      let unresolvedHole = false;
+      for (const [k, g] of propGetters) {
+        if (k === "component" || k === "componentFromGlobalScope" || k === "from") {
+          continue;
+        }
+        const v = g(vals);
+        if (v === void 0) unresolvedHole = true;
+        if (k === "dcProps") {
+          if (v && typeof v === "object") Object.assign(props, v);
+          continue;
+        }
+        props[k] = v;
+      }
+      if (unresolvedHole && ctx?.__htmlStreamingNow) {
+        const ph = host.placeholder({
+          key: wrapper ? void 0 : key,
+          name,
+          hintSize,
+          error: null
+        });
+        return wrapper ? h("div", wrapper, ph) : ph;
+      }
+      if (kids.length) props.children = kids.map((b, j) => b(vals, ctx, j));
+      return wrapper ? h("div", wrapper, h(C, props)) : h(C, props);
+    };
+  }
+  function contentKey(el) {
+    const clone = el.cloneNode(true);
+    for (const d of clone.querySelectorAll("*")) {
+      while (d.attributes.length) d.removeAttribute(d.attributes[0].name);
+    }
+    const s = clone.innerHTML;
+    let h2 = 5381;
+    for (let i = 0; i < s.length; i++) h2 = (h2 << 5) + h2 + s.charCodeAt(i) | 0;
+    return s.length + "." + (h2 >>> 0).toString(36);
+  }
+  var NEVER_CONTENT_KEYED = new Set(
+    "script style textarea option title select canvas iframe video audio".split(
+      " "
+    )
+  );
+  var NOT_INLINE_SELECTOR = ":not(" + [...INLINE_TEXT_TAGS].join(",") + ")";
+  function walkElement(el, host) {
+    const realTag = RAW_UNWRAP[el.localName] || el.localName;
+    const tplId = el.getAttribute("data-dc-tpl");
+    const inlineOnly = el.childNodes.length > 0 && !NEVER_CONTENT_KEYED.has(realTag) && el.querySelector(NOT_INLINE_SELECTOR) === null;
+    const keySuffix = inlineOnly ? "|" + contentKey(el) : "";
+    const { propGetters, pseudoClasses } = collectProps(el, "dom", host);
+    const kids = walkChildren(el, host);
+    return (vals, ctx, key) => {
+      const props = {
+        key: key + keySuffix,
+        "data-dc-tpl": tplId
+      };
+      for (const [k, g] of propGetters) {
+        let v = g(vals);
+        if (k === "style" && typeof v === "string") v = cssToObj(v);
+        if ((k === "value" || k === "checked") && v === void 0) {
+          v = k === "checked" ? false : "";
+        }
+        props[k] = v;
+      }
+      if (pseudoClasses.length) {
+        props.className = [props.className, ...pseudoClasses].filter(Boolean).join(" ");
+      }
+      return h(realTag, props, ...kids.map((b, j) => b(vals, ctx, j)));
+    };
+  }
+
+  // src/logic.ts
+  var StreamableLogic = class {
+    constructor(props) {
+      __publicField(this, "props");
+      __publicField(this, "state", {});
+      /** Back-pointer to the wrapper component, installed after construction. */
+      __publicField(this, "__host");
+      this.props = props || {};
+    }
+    setState(update, cb) {
+      this.__host && this.__host.__setLogicState(update, cb);
+    }
+    forceUpdate() {
+      this.__host && this.__host.forceUpdate();
+    }
+    componentDidMount() {
+    }
+    componentDidUpdate(_prevProps) {
+    }
+    componentWillUnmount() {
+    }
+    /** The flat object the template renders against (merged over props). */
+    renderVals() {
+      return {};
+    }
+  };
+  function evalDcLogic(src) {
+    //! nosemgrep: eval-and-function-constructor
+    const fn = new Function(
+      "DCLogic",
+      "StreamableLogic",
+      "React",
+      src + '\n;return (typeof Component!=="undefined"&&Component)||undefined;'
+    );
+    return fn(StreamableLogic, StreamableLogic, getReact());
+  }
+
+  // src/component.ts
+  function shallowEqual(a, b) {
+    if (!b) return false;
+    const ak = Object.keys(a).filter((k) => k !== "children");
+    const bk = Object.keys(b).filter((k) => k !== "children");
+    if (ak.length !== bk.length) return false;
+    for (const k of ak) if (a[k] !== b[k]) return false;
+    return true;
+  }
+  function Placeholder({
+    name,
+    hintSize,
+    streaming,
+    error
+  }) {
+    const [w, hgt] = (hintSize || "100%,60px").split(",");
+    return h(
+      "div",
+      {
+        className: "sc-placeholder" + (streaming ? " sc-streaming" : ""),
+        style: { width: w.trim(), height: hgt && hgt.trim() },
+        title: name
+      },
+      error ? h(
+        "div",
+        { className: "sc-placeholder-error" },
+        (name ? name + ": " : "") + error
+      ) : null
+    );
+  }
+  function hintToMin(hint) {
+    if (!hint) return void 0;
+    const [w, hgt] = hint.split(",");
+    return { minWidth: w.trim(), minHeight: hgt && hgt.trim() };
+  }
+  function createComponentFactory(registry, ensureFetched) {
+    const React = getReact();
+    const AncestorContext = React.createContext([]);
+    class StreamableComponent extends React.Component {
+      constructor(props) {
+        super(props);
+        __publicField(this, "__name");
+        __publicField(this, "__sub");
+        __publicField(this, "__needsDidMount", false);
+        /** Snapshot of the registry's streaming flags taken at render time —
+         *  builders read it off the RenderCtx (this) to pick placeholder vs
+         *  render-nothing for unresolved values. */
+        __publicField(this, "__streamingNow", false);
+        __publicField(this, "__htmlStreamingNow", false);
+        /** When a construct throws, remember the (class, registry.ver, props)
+         *  triple so render-time reconcile doesn't re-attempt it on every parent
+         *  re-render. A registry bump (new class, template, external module
+         *  resolving via bumpAll) changes `ver` and breaks the memo so an
+         *  env-dependent constructor can self-heal. */
+        __publicField(this, "__failedLogic", null);
+        __publicField(this, "__failedUserProps", null);
+        __publicField(this, "__failedVer", -1);
+        /** Per-instance constructor error — kept here (not on the registry entry)
+         *  so one instance's successful construct can't hide a sibling's failure,
+         *  and a construct can never wipe an eval error `updateJs` recorded on
+         *  `r.logicError`. */
+        __publicField(this, "__ctorError", null);
+        __publicField(this, "logic");
+        this.__name = props.__name;
+        this.state = { __v: 0, __err: null };
+        this.__sub = () => {
+          if (this.state.__err) this.setState({ __err: null });
+          this.forceUpdate();
+        };
+        this.__makeLogic(registry.get(this.__name).Logic, null);
+        ensureFetched(this.__name);
+      }
+      /** Error-boundary hook: a render crash anywhere in this DC's subtree
+       *  (its own template, an x-import'd component, a child DC without its
+       *  own deeper boundary) lands here instead of unmounting the page. */
+      static getDerivedStateFromError(e) {
+        return { __err: e instanceof Error && e.message ? e.message : String(e) };
+      }
+      componentDidCatch(e, info) {
+        console.error(
+          "[dc-runtime] render error in <" + this.__name + ">:",
+          e,
+          info?.componentStack || ""
+        );
+      }
+      /** Instantiate the logic class (or the no-op base) and adopt `prevState`
+       *  over its initial state — used both at mount and on hot-swap. */
+      __makeLogic(Logic, prevState) {
+        const L = Logic || StreamableLogic;
+        try {
+          this.logic = new L(this.__userProps());
+          this.__failedLogic = null;
+          this.__failedUserProps = null;
+          this.__ctorError = null;
+        } catch (e) {
+          console.error(e);
+          this.__failedLogic = Logic;
+          this.__failedUserProps = this.__userProps();
+          this.__failedVer = registry.get(this.__name).ver;
+          this.__ctorError = this.__name + ": " + (e instanceof Error && e.message ? e.message : String(e));
+          this.logic = new StreamableLogic(
+            this.__userProps()
+          );
+        }
+        this.logic.__host = this;
+        if (prevState)
+          this.logic.state = { ...this.logic.state || {}, ...prevState };
+      }
+      /** The props the author's logic + template see — internal __-prefixed
+       *  wiring stripped. */
+      __userProps() {
+        const { __name, __hintSize, __tplId, __hostStyle, ...rest } = this.props;
+        return rest;
+      }
+      __setLogicState(update, cb) {
+        const prev = this.logic.state;
+        const patch = typeof update === "function" ? update(prev) : update;
+        this.logic.state = { ...prev, ...patch };
+        this.setState((s) => ({ __v: s.__v + 1 }), cb);
+      }
+      /** Swap the logic instance when the registry's Logic class changed
+       *  (streaming completion, hot reload). State carries over; didMount
+       *  re-fires after the swap commits so refs exist. */
+      __reconcileLogic() {
+        const r = registry.get(this.__name);
+        const Next = r.Logic;
+        const Cur = this.logic.constructor;
+        if (Next === Cur || !Next && Cur === StreamableLogic || Next === this.__failedLogic && r.ver === this.__failedVer && shallowEqual(this.__userProps(), this.__failedUserProps)) {
+          return;
+        }
+        if (!this.__needsDidMount) {
+          try {
+            this.logic.componentWillUnmount();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        this.__makeLogic(Next, this.logic.state);
+        this.__needsDidMount = true;
+      }
+      componentDidMount() {
+        registry.get(this.__name).subs.add(this.__sub);
+        try {
+          this.logic.componentDidMount();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      componentDidUpdate(prevProps) {
+        this.logic.props = this.__userProps();
+        if (this.__needsDidMount) {
+          if (this.state.__err || !registry.get(this.__name).tpl) return;
+          this.__needsDidMount = false;
+          try {
+            this.logic.componentDidMount();
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          try {
+            this.logic.componentDidUpdate(prevProps);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+      componentWillUnmount() {
+        registry.get(this.__name).subs.delete(this.__sub);
+        if (!this.__needsDidMount) {
+          try {
+            this.logic.componentWillUnmount();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+      render() {
+        const r = registry.get(this.__name);
+        const cls = "sc-host" + (r.htmlStreaming ? " sc-streaming-html" : "") + (r.jsStreaming ? " sc-streaming-js" : "");
+        const hintStyle = r.htmlStreaming ? hintToMin(this.props.__hintSize) : void 0;
+        const hostStyle = this.props.__hostStyle || hintStyle ? { ...hintStyle || {}, ...this.props.__hostStyle || {} } : void 0;
+        const hostBase = {
+          className: cls,
+          style: hostStyle,
+          "data-sc-name": this.__name,
+          "data-dc-tpl": this.props.__tplId
+        };
+        const chain = Array.isArray(this.context) ? this.context : [];
+        if (chain.includes(this.__name)) {
+          const cycle = [
+            ...chain.slice(chain.indexOf(this.__name)),
+            this.__name
+          ].join(" \u2192 ");
+          return h(
+            "div",
+            { ...hostBase, className: cls + " sc-has-error" },
+            h(Placeholder, {
+              name: this.__name,
+              hintSize: this.props.__hintSize,
+              error: "circular import: " + cycle
+            })
+          );
+        }
+        if (this.state.__err) {
+          return h(
+            "div",
+            { ...hostBase, className: cls + " sc-has-error" },
+            h(
+              "div",
+              { className: "sc-logic-error", "data-omelette-chrome": "" },
+              this.__name + ": " + this.state.__err
+            ),
+            h(Placeholder, {
+              name: this.__name,
+              hintSize: this.props.__hintSize,
+              error: this.state.__err
+            })
+          );
+        }
+        this.__reconcileLogic();
+        if (!r.tpl) {
+          return h(
+            "div",
+            hostBase,
+            h(Placeholder, { name: this.__name, hintSize: this.props.__hintSize })
+          );
+        }
+        const userProps = this.__userProps();
+        this.logic.props = userProps;
+        let vals = userProps;
+        let renderErr = r.logicError || this.__ctorError;
+        try {
+          vals = { ...userProps, ...this.logic.renderVals() || {} };
+        } catch (e) {
+          console.error(e);
+          renderErr = this.__name + ".renderVals(): " + (e instanceof Error && e.message ? e.message : String(e));
+        }
+        this.__streamingNow = !!(r.htmlStreaming || r.jsStreaming);
+        this.__htmlStreamingNow = !!r.htmlStreaming;
+        return h(
+          "div",
+          { ...hostBase, className: cls + (renderErr ? " sc-has-error" : "") },
+          renderErr && h(
+            "div",
+            { className: "sc-logic-error", "data-omelette-chrome": "" },
+            renderErr
+          ),
+          h(
+            AncestorContext.Provider,
+            { value: [...chain, this.__name] },
+            r.tpl(vals, this)
+          )
+        );
+      }
+    }
+    __publicField(StreamableComponent, "contextType", AncestorContext);
+    const named = /* @__PURE__ */ new Map();
+    function getDC(name) {
+      const hit = named.get(name);
+      if (hit) return hit;
+      function Dispatcher(p) {
+        const [, setTick] = React.useState(0);
+        React.useEffect(() => {
+          const sub = () => setTick((n) => n + 1);
+          registry.get(name).subs.add(sub);
+          return () => {
+            registry.get(name).subs.delete(sub);
+          };
+        }, []);
+        ensureFetched(name);
+        return h(StreamableComponent, { ...p, __name: name });
+      }
+      Dispatcher.displayName = name;
+      named.set(name, Dispatcher);
+      return Dispatcher;
+    }
+    return {
+      getDC,
+      StreamableComponent
+    };
+  }
+
+  // src/external.ts
+  var isCustomElementName = (n) => !n.includes(".") && n.includes("-");
+  function isRenderableType(g) {
+    if (typeof g === "function") return !isElementClass(g);
+    return typeof g === "object" && g !== null && typeof g.$$typeof === "symbol";
+  }
+  function resolveDottedPath(root, name) {
+    let cur = root;
+    for (const seg of name.split(".")) {
+      if (cur == null) return void 0;
+      cur = cur[seg];
+    }
+    return cur;
+  }
+  var BABEL_URL = "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js";
+  var BABEL_SRI = "sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y";
+  var GLOBAL_POLL_INTERVAL_MS = 50;
+  var GLOBAL_POLL_TIMEOUT_MS = 3e4;
+  function createExternalModules(onResolved) {
+    const cache = /* @__PURE__ */ new Map();
+    let babelLoading = null;
+    const reportedMissing = /* @__PURE__ */ new Map();
+    const polling = /* @__PURE__ */ new Set();
+    function ensureBabel() {
+      if (window.Babel) return Promise.resolve();
+      if (babelLoading) return babelLoading;
+      babelLoading = new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = BABEL_URL;
+        s.integrity = BABEL_SRI;
+        s.crossOrigin = "anonymous";
+        s.onload = () => res();
+        s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      return babelLoading;
+    }
+    const pending = /* @__PURE__ */ new Map();
+    function load(kind, url, after) {
+      const existing = pending.get(url);
+      if (existing) return existing;
+      cache.set(url, null);
+      console.info("[dc-runtime] x-import: loading", url, "(" + kind + ")");
+      const ready = Promise.all([
+        kind === "jsx" ? ensureBabel() : Promise.resolve(),
+        after ?? Promise.resolve()
+      ]);
+      const p = ready.then(() => fetch(url)).then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      }).then((src) => {
+        const code = kind === "jsx" ? window.Babel.transform(src, {
+          filename: url,
+          presets: ["react", "typescript"]
+        }).code : src;
+        const module = { exports: {} };
+        const before = new Set(Object.keys(window));
+        //! nosemgrep: eval-and-function-constructor
+        new Function("React", "module", "exports", "require", code)(
+          getReact(),
+          module,
+          module.exports,
+          () => ({})
+        );
+        const globals = {};
+        for (const k of Object.keys(window)) {
+          if (!before.has(k) && typeof window[k] === "function") {
+            globals[k] = window[k];
+          }
+        }
+        cache.set(url, { mod: module.exports, globals });
+        console.info(
+          "[dc-runtime] x-import: loaded",
+          url,
+          "\u2014 exports:",
+          Object.keys(module.exports),
+          "window globals:",
+          Object.keys(globals)
+        );
+        onResolved();
+      }).catch((e) => {
+        cache.set(url, {
+          mod: {},
+          globals: {},
+          error: "failed to load: " + (e instanceof Error && e.message ? e.message : String(e))
+        });
+        console.error(
+          "[dc-runtime] x-import: FAILED to load",
+          url,
+          "(" + kind + ")",
+          e
+        );
+        onResolved();
+      });
+      pending.set(url, p);
+      return p;
+    }
+    function resolve2(url, name) {
+      const entry = cache.get(url);
+      if (!entry) return null;
+      const { mod, globals } = entry;
+      const C = mod && mod[name] || globals && globals[name] || typeof window !== "undefined" && window[name] || mod && mod.default;
+      if (typeof C === "function") return C;
+      const key = url + "\0" + name;
+      if (!reportedMissing.has(key)) {
+        reportedMissing.set(
+          key,
+          entry.error || 'no export named "' + name + '" (has: ' + Object.keys(mod).join(", ") + ")"
+        );
+        console.error(
+          "[dc-runtime] x-import: module",
+          url,
+          "loaded but has no component named",
+          JSON.stringify(name),
+          "\u2014 available exports:",
+          Object.keys(mod),
+          "window globals:",
+          Object.keys(globals),
+          ". The module must `module.exports = {" + name + "}` or set `window." + name + "`."
+        );
+      }
+      return null;
+    }
+    function waitForGlobal(name) {
+      if (polling.has(name)) return;
+      polling.add(name);
+      const started = Date.now();
+      const isCE = isCustomElementName(name);
+      const tick = () => {
+        const found = isCE ? customElements.get(name) : isRenderableType(resolveDottedPath(window, name));
+        if (found) {
+          polling.delete(name);
+          onResolved();
+          return;
+        }
+        if (Date.now() - started >= GLOBAL_POLL_TIMEOUT_MS) {
+          console.warn(
+            "[dc-runtime] x-import: global",
+            JSON.stringify(name),
+            "never appeared on window after " + GLOBAL_POLL_TIMEOUT_MS + "ms"
+          );
+          return;
+        }
+        setTimeout(tick, GLOBAL_POLL_INTERVAL_MS);
+      };
+      setTimeout(tick, GLOBAL_POLL_INTERVAL_MS);
+    }
+    function resolveGlobal(url, name) {
+      const isCE = isCustomElementName(name);
+      if (!url) {
+        if (isCE) {
+          if (customElements.get(name)) return name;
+          waitForGlobal(name);
+          return null;
+        }
+        const g2 = resolveDottedPath(window, name);
+        if (isRenderableType(g2)) return g2;
+        waitForGlobal(name);
+        return null;
+      }
+      const entry = cache.get(url);
+      if (!entry) return null;
+      if (isCE && customElements.get(name)) return name;
+      const g = entry.globals[name] ?? resolveDottedPath(window, name);
+      if (isRenderableType(g)) return g;
+      if (name.includes(".")) return null;
+      const key = url + "\0global\0" + name;
+      if (!reportedMissing.has(key)) {
+        reportedMissing.set(key, null);
+        if (isCE && !customElements.get(name)) {
+          console.warn(
+            "[dc-runtime] x-import:",
+            url,
+            "loaded but no custom element",
+            JSON.stringify(name),
+            "is registered and window." + name + " is not a function \u2014 rendering <" + name + "> as an unknown element."
+          );
+        }
+      }
+      return name;
+    }
+    function getError(url, name) {
+      const entry = cache.get(url);
+      if (entry?.error) return entry.error;
+      return reportedMissing.get(url + "\0" + name) || null;
+    }
+    return { load, resolve: resolve2, resolveGlobal, getError };
+  }
+  function isElementClass(g) {
+    try {
+      return typeof g === "function" && typeof HTMLElement !== "undefined" && g.prototype instanceof HTMLElement;
+    } catch {
+      return false;
+    }
+  }
+
+  // src/atomics.ts
+  var ATOMIC_CSS = (
+    // layout
+    ".fx{display:flex}.col{display:flex;flex-direction:column}.grid{display:grid}.ac{align-items:center}.jc{justify-content:center}.jb{justify-content:space-between}.f1{flex:1}.noshrink{flex-shrink:0}.wrap{flex-wrap:wrap}.fw5{font-weight:500}.fw6{font-weight:600}.fw7{font-weight:700}.fw8{font-weight:800}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}.fs14{font-size:14px}.fs15{font-size:15px}.fs16{font-size:16px}.fs20{font-size:20px}.fs22{font-size:22px}.upper{text-transform:uppercase}.tc{text-align:center}.nowrap{white-space:nowrap}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}.gap16{gap:16px}.gap24{gap:24px}.m0{margin:0}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.posrel{position:relative}.posabs{position:absolute}.round{border-radius:50%}.ohide{overflow:hidden}.bbox{box-sizing:border-box}.pointer{cursor:pointer}.w100{width:100%}.b0{border:none}"
+  );
+
+  // src/helmet.ts
+  var DESIGN_DOC_MODE_RE = /<meta\b[^>]*\bname\s*=\s*["']design_doc_mode["'][^>]*\b(?:content|value)\s*=\s*["'](\w+)["']/i;
+  var CANVAS_BG_LIGHT = "#f0eee6";
+  var CANVAS_BG_DARK = "#2e2c26";
+  function createHelmetManager(doc, isStreaming) {
+    const mounted = /* @__PURE__ */ new Set();
+    const live = /* @__PURE__ */ new Map();
+    let designDocMode = null;
+    let canvasStyleEl = null;
+    let appTheme = "light";
+    try {
+      const ds = doc.documentElement.dataset.theme;
+      appTheme = ds === "dark" || ds === "light" ? ds : new URLSearchParams(doc.defaultView?.location.search ?? "").get(
+        "theme"
+      ) === "dark" ? "dark" : "light";
+    } catch {
+    }
+    function applyCanvasBg() {
+      if (!canvasStyleEl) return;
+      const bg = appTheme === "dark" ? CANVAS_BG_DARK : CANVAS_BG_LIGHT;
+      canvasStyleEl.textContent = `html,body{background:${bg}}#dc-root>.sc-host{position:relative}`;
+    }
+    function postDesignMode(mode) {
+      if (window.parent === window) return;
+      try {
+        window.parent.postMessage({ type: "__dc_design_mode", mode }, "*");
+      } catch {
+      }
+    }
+    function setDesignDocMode(mode) {
+      if (mode === designDocMode) return;
+      designDocMode = mode;
+      postDesignMode(mode);
+      if (mode === "canvas") {
+        doc.documentElement.setAttribute("data-dc-canvas", "");
+        canvasStyleEl = doc.createElement("style");
+        canvasStyleEl.setAttribute("data-dc-canvas", "");
+        applyCanvasBg();
+        doc.head.appendChild(canvasStyleEl);
+      } else {
+        doc.documentElement.removeAttribute("data-dc-canvas");
+        canvasStyleEl?.remove();
+        canvasStyleEl = null;
+      }
+    }
+    window.addEventListener("message", (e) => {
+      const type = e.data && e.data.type;
+      if (type === "__dc_theme") {
+        const t = e.data.theme;
+        if (t === "light" || t === "dark") {
+          appTheme = t;
+          doc.documentElement.dataset.theme = t;
+          applyCanvasBg();
+        }
+        return;
+      }
+      if (!designDocMode || type !== "__dc_probe") return;
+      postDesignMode(designDocMode);
+    });
+    function compile(node) {
+      const raw = [...node.children];
+      const helmetClosed = node.nextSibling != null || node.parentNode?.nextSibling != null;
+      if (node.hasAttribute("data-dc-atomics") && !mounted.has("__dc-atomics")) {
+        mounted.add("__dc-atomics");
+        const el = doc.createElement("style");
+        el.id = "__dc-atomics";
+        el.textContent = ATOMIC_CSS;
+        doc.head.appendChild(el);
+      }
+      return (_vals, ctx) => {
+        const name = ctx && ctx.__name || "";
+        const streaming = !!(name && isStreaming(name));
+        for (let i = 0; i < raw.length; i++) {
+          const child = raw[i];
+          const tag = child.tagName;
+          const mayBePartial = streaming && !helmetClosed && i === raw.length - 1;
+          if (tag === "SCRIPT") {
+            if (mayBePartial) continue;
+            const key = "SCRIPT|" + (child.getAttribute("src") || child.textContent || "");
+            if (mounted.has(key)) continue;
+            mounted.add(key);
+            const el = doc.createElement("script");
+            for (const { name: an, value } of [...child.attributes])
+              el.setAttribute(an, value);
+            if (child.textContent) el.textContent = child.textContent;
+            doc.head.appendChild(el);
+          } else if (tag === "LINK" || tag === "META") {
+            if (mayBePartial) continue;
+            const key = tag + "|" + (child.getAttribute("href") || child.getAttribute("src") || child.outerHTML);
+            if (mounted.has(key)) continue;
+            mounted.add(key);
+            doc.head.appendChild(child.cloneNode(true));
+          } else {
+            const key = name + "|" + i;
+            let el = live.get(key);
+            if (!el || el.tagName !== tag) {
+              if (el) el.remove();
+              el = doc.createElement(tag.toLowerCase());
+              live.set(key, el);
+              doc.head.appendChild(el);
+            }
+            for (const { name: an, value } of [...child.attributes]) {
+              if (el.getAttribute(an) !== value) el.setAttribute(an, value);
+            }
+            if (el.textContent !== child.textContent)
+              el.textContent = child.textContent;
+          }
+        }
+        return null;
+      };
+    }
+    return { compile, setDesignDocMode };
+  }
+
+  // src/pseudo.ts
+  function createPseudoSheet(doc) {
+    let el = null;
+    const cache = /* @__PURE__ */ new Map();
+    let n = 0;
+    return (pseudo, css) => {
+      const k = pseudo + "|" + css;
+      const hit = cache.get(k);
+      if (hit) return hit;
+      if (!el) {
+        el = doc.createElement("style");
+        doc.head.appendChild(el);
+      }
+      const cls = "scp" + (n++).toString(36);
+      const sel = pseudo === "before" || pseudo === "after" ? "." + cls + "::" + pseudo : "." + cls + ":" + pseudo;
+      el.sheet.insertRule(sel + "{" + css + "}", el.sheet.cssRules.length);
+      cache.set(k, cls);
+      return cls;
+    };
+  }
+
+  // src/registry.ts
+  function createRegistry() {
+    const entries = /* @__PURE__ */ Object.create(null);
+    function get(name) {
+      return entries[name] || (entries[name] = {
+        html: "",
+        tpl: null,
+        Logic: null,
+        jsStreaming: false,
+        htmlStreaming: false,
+        ver: 0,
+        subs: /* @__PURE__ */ new Set(),
+        fetched: false
+      });
+    }
+    function bump(name) {
+      const r = get(name);
+      r.ver++;
+      for (const fn of r.subs) fn();
+    }
+    return {
+      entries,
+      get,
+      bump,
+      bumpAll() {
+        for (const n in entries) bump(n);
+      }
+    };
+  }
+
+  // src/runtime.ts
+  var COMPONENT_DIR = ".";
+  function createRuntime(doc = document) {
+    const registry = createRegistry();
+    const pseudoClass = createPseudoSheet(doc);
+    const helmet = createHelmetManager(
+      doc,
+      (name) => registry.get(name).htmlStreaming
+    );
+    const external = createExternalModules(() => registry.bumpAll());
+    const factory = createComponentFactory(registry, ensureFetched);
+    const host = {
+      component: (name) => factory.getDC(name),
+      placeholder: (props) => h(Placeholder, props),
+      helmet: (node) => helmet.compile(node),
+      loadExternal: (kind, url, after) => external.load(kind, url, after),
+      resolveExternal: (url, name) => external.resolve(url, name),
+      resolveExternalGlobal: (url, name) => external.resolveGlobal(url, name),
+      resolveExternalError: (url, name) => external.getError(url, name),
+      pseudoClass
+    };
+    function ensureFetched(name) {
+      const r = registry.get(name);
+      if (r.fetched) return;
+      r.fetched = true;
+      const url = COMPONENT_DIR + "/" + encodeURIComponent(name) + ".dc.html";
+      fetch(url).then((res) => {
+        if (!res.ok) {
+          console.error(
+            "[dc-runtime] sibling fetch for <" + name + "/> failed:",
+            url,
+            "returned",
+            res.status,
+            "\u2014 the reference renders as an empty placeholder."
+          );
+          return "";
+        }
+        return res.text();
+      }).then((t) => {
+        if (!t) return;
+        const parsed = parseDcText(t);
+        if (!parsed) {
+          console.error(
+            "[dc-runtime] sibling fetch for <" + name + "/>:",
+            url,
+            "has no <x-dc> block \u2014 not a Design Component."
+          );
+          return;
+        }
+        if (parsed.props) r.propsMeta = parsed.props;
+        if (parsed.preview) r.preview = parsed.preview;
+        if (parsed.template && !r.html) updateHtml(name, parsed.template);
+        if (parsed.js && !r.Logic) updateJs(name, parsed.js);
+      }).catch(
+        (e) => console.error(
+          "[dc-runtime] sibling fetch for <" + name + "/> threw:",
+          url,
+          e
+        )
+      );
+    }
+    let rootName = null;
+    function updateHtml(name, html) {
+      const r = registry.get(name);
+      r.html = html;
+      if (name === rootName) {
+        const mode = DESIGN_DOC_MODE_RE.exec(html)?.[1] ?? null;
+        if (mode || !r.htmlStreaming) helmet.setDesignDocMode(mode);
+      }
+      try {
+        r.tpl = compileTemplate(html, host);
+      } catch (e) {
+        console.error("[dc-runtime] template compile FAILED for", name, e);
+      }
+      registry.bump(name);
+    }
+    function updateJs(name, src) {
+      const r = registry.get(name);
+      const seq = r.jsSeq = (r.jsSeq || 0) + 1;
+      try {
+        const Cls = evalDcLogic(src);
+        if (r.jsSeq !== seq) return;
+        if (typeof Cls !== "function") {
+          r.logicError = name + ".dc.html: <script data-dc-script> must define `class Component extends DCLogic`";
+        } else {
+          r.logicError = null;
+          r.Logic = Cls;
+        }
+      } catch (e) {
+        if (r.jsSeq !== seq) return;
+        console.error(
+          "[dc-runtime] logic class eval FAILED for",
+          name,
+          "\u2014 the template renders with props only.",
+          e
+        );
+        r.logicError = name + ": " + (e instanceof Error && e.message ? e.message : String(e));
+      }
+      registry.bump(name);
+    }
+    function setStreaming(name, kind, on) {
+      const r = registry.get(name);
+      if (kind === "html") r.htmlStreaming = !!on;
+      else r.jsStreaming = !!on;
+      let any = false;
+      for (const n in registry.entries) {
+        const e = registry.entries[n];
+        if (e && (e.htmlStreaming || e.jsStreaming)) {
+          any = true;
+          break;
+        }
+      }
+      doc.documentElement.classList.toggle("sc-dc-streaming", any);
+      registry.bump(name);
+    }
+    function dcUpdate(name, kind, content, streaming) {
+      if (streaming) registry.get(name).fetched = true;
+      if (kind === "html") {
+        setStreaming(name, "html", !!streaming);
+        updateHtml(name, content);
+      } else if (kind === "js") {
+        setStreaming(name, "js", !!streaming);
+        if (!streaming) updateJs(name, content);
+      } else if (kind === "props") {
+        const { props, preview } = parseDataProps(content);
+        const r = registry.get(name);
+        r.propsMeta = props ?? void 0;
+        r.preview = preview;
+        registry.bump(name);
+      }
+    }
+    function setProps(name, overrides) {
+      registry.get(name).propOverrides = overrides && typeof overrides === "object" ? { ...overrides } : null;
+      registry.bump(name);
+    }
+    function adoptParsed(name, parsed) {
+      if (!parsed) return;
+      const r = registry.get(name);
+      if (parsed.props) r.propsMeta = parsed.props;
+      if (parsed.preview) r.preview = parsed.preview;
+      if (parsed.template) updateHtml(name, parsed.template);
+      if (parsed.js) updateJs(name, parsed.js);
+    }
+    return {
+      registry,
+      getDC: factory.getDC,
+      updateHtml,
+      updateJs,
+      dcUpdate,
+      setProps,
+      adoptParsed,
+      setRootName: (name) => {
+        rootName = name;
+      },
+      markFetched: (name) => {
+        registry.get(name).fetched = true;
+      },
+      annotatedTemplate: (name) => {
+        const r = registry.get(name);
+        return r.tpl && r.tpl.__annotated || null;
+      },
+      templateSource: (name) => registry.get(name).html || null,
+      StreamableLogic
+    };
+  }
+
+  // src/stream-state.ts
+  function createStreamTracker(staleMs = 6e4, now = Date.now) {
+    const since = /* @__PURE__ */ new Map();
+    const liveOne = (n) => {
+      const t = since.get(n);
+      if (t === void 0) return false;
+      if (now() - t > staleMs) {
+        since.delete(n);
+        return false;
+      }
+      return true;
+    };
+    return {
+      push(name, streaming, viewportKey) {
+        if (viewportKey === "dc-model") return;
+        if (streaming) since.set(name, now());
+        else since.delete(name);
+      },
+      live(name) {
+        if (name !== void 0) return liveOne(name);
+        for (const n of [...since.keys()]) if (liveOne(n)) return true;
+        return false;
+      }
+    };
+  }
+
+  // src/index.ts
+  var REACT_URL = "https://unpkg.com/react@18.3.1/umd/react.production.min.js";
+  var REACT_SRI = "sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z";
+  var REACT_DOM_URL = "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js";
+  var REACT_DOM_SRI = "sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1";
+  function hideRawTemplate() {
+    const s = document.createElement("style");
+    s.textContent = "x-dc{display:none!important}";
+    document.head.appendChild(s);
+  }
+  function loadScript(src, integrity) {
+    return new Promise((resolve2, reject) => {
+      //! nosemgrep: create-script-element
+      const s = document.createElement("script");
+      s.src = src;
+      s.integrity = integrity;
+      s.crossOrigin = "anonymous";
+      s.async = false;
+      s.onload = () => resolve2();
+      s.onerror = () => reject(new Error(`failed to load ${src}`));
+      document.head.appendChild(s);
+    });
+  }
+  function loadReactUmd() {
+    const w = window;
+    if (w.React && w.ReactDOM) return Promise.resolve();
+    return Promise.all([
+      loadScript(REACT_URL, REACT_SRI),
+      loadScript(REACT_DOM_URL, REACT_DOM_SRI)
+    ]).then(() => void 0);
+  }
+  function init() {
+    const runtime = createRuntime(document);
+    let rootName = "Root";
+    const baseCss = document.createElement("style");
+    baseCss.textContent = BASE_CSS;
+    document.head.prepend(baseCss);
+    const notifyHost = () => {
+      if (window.parent === window) return;
+      const r = runtime.registry.entries[rootName];
+      try {
+        window.parent.postMessage(
+          {
+            type: "__dc_booted",
+            rootName,
+            propsMeta: r && r.propsMeta || null,
+            preview: r && r.preview || null
+          },
+          "*"
+        );
+      } catch {
+      }
+    };
+    const streams = createStreamTracker();
+    const api = {
+      __dcUpdate: (name, kind, content, streaming, viewportKey) => {
+        streams.push(name, streaming, viewportKey);
+        runtime.dcUpdate(name, kind, content, streaming);
+        if (name === rootName && !streaming && kind === "props") notifyHost();
+      },
+      __dcStreaming: (name) => streams.live(name),
+      __dcSetProps: (name, overrides) => runtime.setProps(name, overrides),
+      /** Name of the component currently mounted as the page root — DC tools
+       *  push their template-stream here when targeting "the open page". */
+      __dcRootName: () => rootName,
+      /** Editor bridge — the encoded, `data-dc-tpl`-annotated template source.
+       *  The host editor parses this into its own template DOM so it can map a
+       *  rendered node (carrying the same `data-dc-tpl`) back to the source
+       *  node that emitted it. Returns the encoded form (`<sc-comp>`,
+       *  `sc-camel-*` attrs); the editor decodes on serialize. */
+      __dcAnnotatedTemplate: (name) => runtime.annotatedTemplate(name),
+      /** Editor bridge — the *original* (decoded) template source. */
+      __dcTemplateSource: (name) => runtime.templateSource(name),
+      __dcBoot: () => {
+        rootName = boot(runtime, document) ?? rootName;
+        notifyHost();
+      },
+      __dcRegistry: runtime.registry.entries,
+      getDC: (name) => runtime.getDC(name),
+      // `DCLogic` is the documented base class name; `StreamableLogic` is the
+      // implementation alias kept for any project that already references it.
+      DCLogic: runtime.StreamableLogic,
+      StreamableLogic: runtime.StreamableLogic
+    };
+    Object.assign(window, api);
+    window.__dcContentKeyed = true;
+    if (document.readyState !== "loading") api.__dcBoot();
+    else document.addEventListener("DOMContentLoaded", () => api.__dcBoot());
+  }
+  hideRawTemplate();
+  loadReactUmd().then(init).catch((err) => {
+    console.error("[dc] failed to load React or boot:", err);
+    throw err;
+  });
+})();
