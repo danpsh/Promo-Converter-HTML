@@ -450,14 +450,24 @@ class Component extends DCLogic {
   async fetchOdds(sportKey, market="h2h"){
     const ck=sportKey+"|"+market, now=Date.now(), c=this._cache[ck];
     if(c && now-c.t<300000) return c.v;
-    const url=`https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sportKey)}/odds/?apiKey=${encodeURIComponent(this.state.apiKey)}&regions=us,us2&markets=${encodeURIComponent(market)}&oddsFormat=american`;
-    let res;
-    try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API. Check your connection."); }
+    const key=this.state.apiKey;
+    // Prefer the same-origin proxy (functions/api/odds.js). The browser only talks to
+    // THIS app's domain, so corporate networks that block betting domains still work —
+    // this is how the old Streamlit server behaved. If no proxy is deployed (plain static
+    // host), the proxy call returns 404 and we fall back to a direct browser request.
+    const proxyUrl=`api/odds?sport=${encodeURIComponent(sportKey)}&market=${encodeURIComponent(market)}&key=${encodeURIComponent(key)}`;
+    const directUrl=`https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sportKey)}/odds/?apiKey=${encodeURIComponent(key)}&regions=us,us2&markets=${encodeURIComponent(market)}&oddsFormat=american`;
+    let res=null, usedProxy=true;
+    try{ res=await fetch(proxyUrl); if(res.status===404){ res=null; } }catch(e){ res=null; }
+    if(!res){ usedProxy=false;
+      try{ res=await fetch(directUrl); }
+      catch(e){ throw new Error("Request blocked — usually an ad blocker or a network that filters betting sites (common on corporate/work WiFi). Try another network, or deploy the proxy so requests route through your own domain."); }
+    }
     if(!res.ok){
       if(res.status===401) throw new Error("Invalid API key (401) — check the key you pasted up top.");
       if(res.status===422) throw new Error(`No data for ${sportKey} (422 — sport may be out of season).`);
       if(res.status===429) throw new Error("API quota exceeded (429).");
-      throw new Error("The Odds API returned HTTP "+res.status+".");
+      throw new Error("The Odds API returned HTTP "+res.status+(usedProxy?" (via proxy).":"."));
     }
     const data=await res.json();
     const remaining=res.headers.get("x-requests-remaining")||"0";
