@@ -31,13 +31,28 @@
   <header style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;">
     <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;color:#0f172a;">Promo Converter</h1>
     <div style="display:flex;align-items:center;gap:9px;">
-      <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a93;">Requests left</span>
+      <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a93;white-space:nowrap;">Requests left</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:5px 11px;color:#0f172a;">{{ apiQuota }}</span>
     </div>
   </header>
 
+  <sc-if value="{{ showKeyBar }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:14px;background:#fff;border:1px solid #e6e6e9;border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;white-space:nowrap;">Odds API key</span>
+      <input data-keyfield="1" type="password" placeholder="Paste your key…" style="flex:1;min-width:170px;height:38px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
+      <button onClick="{{ saveKey }}" style="background:#18181b;color:#fff;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Save</button>
+      <a href="https://the-odds-api.com" target="_blank" rel="noopener" style="font-size:12.5px;color:#0f766e;white-space:nowrap;">Get a free key ↗</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ keySaved }}" hint-placeholder-val="">
+    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+      <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#15803d;">✓ API key saved in this browser</span>
+      <button onClick="{{ editKey }}" style="background:#fff;border:1px solid #e2e2e5;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600;color:#52525b;cursor:pointer;">Change</button>
+    </div>
+  </sc-if>
+
   <div style="margin-top:22px;">
-    <div style="display:inline-flex;flex-wrap:wrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;">
+    <div style="display:inline-flex;flex-wrap:nowrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
       <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>Multi-Book Soccer</button>
       <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
@@ -401,7 +416,7 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 
 class Component extends DCLogic {
   state = {
-    apiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true,
+    apiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false,
     chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
     mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
@@ -410,11 +425,11 @@ class Component extends DCLogic {
   };
 
   constructor(props){ super(props); this._cache={};
+    try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.state.apiKey=k; }catch(e){}
     this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); this.fgFormRef=React.createRef(); }
 
   componentDidMount(){
-    const injected = (typeof window!=="undefined" && window.ODDS_API_KEY) ? String(window.ODDS_API_KEY) : "";
-    if(injected){ this.setState({apiKey:injected}); return; }
+    if(this.state.apiKey) return;
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.setState({apiKey:k}); }catch(e){}
   }
 
@@ -435,11 +450,11 @@ class Component extends DCLogic {
   async fetchOdds(sportKey, market="h2h"){
     const ck=sportKey+"|"+market, now=Date.now(), c=this._cache[ck];
     if(c && now-c.t<300000) return c.v;
-    const url=`api/odds?sport=${encodeURIComponent(sportKey)}&market=${encodeURIComponent(market)}`;
+    const url=`https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sportKey)}/odds/?apiKey=${encodeURIComponent(this.state.apiKey)}&regions=us,us2&markets=${encodeURIComponent(market)}&oddsFormat=american`;
     let res;
-    try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API (possible CORS or connection issue)."); }
+    try{ res=await fetch(url); }catch(e){ throw new Error("Network error reaching The Odds API. Check your connection."); }
     if(!res.ok){
-      if(res.status===401) throw new Error("Server has no API key set (401) — add the ODDS_API_KEY env var on your host.");
+      if(res.status===401) throw new Error("Invalid API key (401) — check the key you pasted up top.");
       if(res.status===422) throw new Error(`No data for ${sportKey} (422 — sport may be out of season).`);
       if(res.status===429) throw new Error("API quota exceeded (429).");
       throw new Error("The Odds API returned HTTP "+res.status+".");
@@ -699,7 +714,9 @@ class Component extends DCLogic {
   toggleChip(e){ const el=e.currentTarget, f=el.dataset.field, v=el.dataset.value; let set; if(el.dataset.single==="1"){ set=new Set(this.state.chips[f].has(v)?[]:[v]); } else { set=new Set(this.state.chips[f]); set.has(v)?set.delete(v):set.add(v); } this.setState({chips:{...this.state.chips,[f]:set}}); }
   toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
   readForm(){ const out={}; document.querySelectorAll("input[data-field]").forEach(n=>{ out[n.dataset.field]=n.value; }); return out; }
-  needKey(setter){ return false; }
+  needKey(setter){ if(!this.state.apiKey){ this.setState(setter("Paste your Odds API key up top first — it's free at the-odds-api.com and saves in your browser.")); this.setState({keyEditing:true}); return true; } return false; }
+  saveKey(){ const el=document.querySelector('input[data-keyfield]'); const k=(el&&el.value||"").trim(); if(!k) return; try{ localStorage.setItem("promo_odds_api_key",k); }catch(e){} this._cache={}; this.setState({apiKey:k, keyEditing:false, mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"", fgGamesMsg:""}); }
+  editKey(){ this.setState({keyEditing:true}); }
 
   async scanMain(){
     const f=this.readForm(this.mainFormRef.current);
@@ -843,7 +860,7 @@ class Component extends DCLogic {
 
   renderVals(){
     const chip=(field,opts,small)=>opts.map(o=>{ const v=typeof o==="string"?o:o.value, lbl=typeof o==="string"?o:o.label; const sel=this.state.chips[field].has(v);
-        const base = small ? "display:inline-flex;align-items:center;padding:6px 11px;border-radius:999px;font-size:12px;cursor:pointer;user-select:none;transition:all .12s;" : "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;transition:all .12s;";
+        const base = small ? "display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;" : "display:inline-flex;align-items:center;padding:10px 15px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;";
         const skin = sel ? "background:#18181b;color:#fff;border:1px solid #18181b;" : "background:#fff;color:#52525b;border:1px solid #e2e2e5;";
         return {value:v,label:lbl,style:base+skin,styleSm:base+skin}; });
     const s=this.state, at=s.activeTab, HL=s.hideLosses;
@@ -853,10 +870,11 @@ class Component extends DCLogic {
     const cnt=(list)=>{ const n=list.length; return `${n} ${n===1?"opportunity":"opportunities"}`; };
     const mainList=filt(s.mainResults), soccerList=filt(s.soccerResults), betgetList=filt(s.betgetResults), fgList=filt(s.fgResults);
     const HA=s.hedgeAny, source=[...s.chips.mb_book][0]||"";
-    const hedgeStyle=(sel,disabled)=> "display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:13px;user-select:none;transition:all .12s;cursor:"+(disabled?"not-allowed":"pointer")+";"+(disabled?"background:#f4f4f5;color:#c4c4c9;border:1px solid #ececef;":(sel?"background:#18181b;color:#fff;border:1px solid #18181b;":"background:#fff;color:#52525b;border:1px solid #e2e2e5;"));
+    const hedgeStyle=(sel,disabled)=> "display:inline-flex;align-items:center;padding:10px 15px;border-radius:999px;font-size:13px;user-select:none;transition:all .12s;white-space:nowrap;cursor:"+(disabled?"not-allowed":"pointer")+";"+(disabled?"background:#f4f4f5;color:#c4c4c9;border:1px solid #ececef;":(sel?"background:#18181b;color:#fff;border:1px solid #18181b;":"background:#fff;color:#52525b;border:1px solid #e2e2e5;"));
     const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
     return {
       apiQuota:s.apiQuota, toggleChip:(e)=>this.toggleChip(e), toggleHedge:(e)=>this.toggleHedge(e),
+      showKeyBar: (!s.apiKey || s.keyEditing), keySaved: (!!s.apiKey && !s.keyEditing), saveKey:()=>this.saveKey(), editKey:()=>this.editKey(),
       mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
       tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"), tabFindGame:()=>this.setActive("findgame"),
       mainTabStyle:tab("main"), soccerTabStyle:tab("soccer"), betgetTabStyle:tab("betget"), findgameTabStyle:tab("findgame"),
