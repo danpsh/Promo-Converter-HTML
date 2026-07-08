@@ -52,7 +52,7 @@
   </sc-if>
 
   <div style="margin-top:22px;">
-    <div style="display:inline-flex;flex-wrap:nowrap;gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;">
       <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
       <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>Multi-Book Soccer</button>
       <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
@@ -874,7 +874,7 @@ class Component extends DCLogic {
         const skin = sel ? "background:#18181b;color:#fff;border:1px solid #18181b;" : "background:#fff;color:#52525b;border:1px solid #e2e2e5;";
         return {value:v,label:lbl,style:base+skin,styleSm:base+skin}; });
     const s=this.state, at=s.activeTab, HL=s.hideLosses;
-    const tab=(id)=>{ const active=at===id; return `display:inline-flex;align-items:center;gap:7px;border:none;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:${active?600:500};cursor:pointer;white-space:nowrap;background:${active?"#fff":"transparent"};color:${active?"#18181b":"#71717a"};box-shadow:${active?"0 1px 3px rgba(0,0,0,.13)":"none"};`; };
+    const tab=(id)=>{ const active=at===id; return `display:flex;justify-content:center;align-items:center;gap:7px;border:none;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:${active?600:500};cursor:pointer;white-space:nowrap;background:${active?"#fff":"transparent"};color:${active?"#18181b":"#71717a"};box-shadow:${active?"0 1px 3px rgba(0,0,0,.13)":"none"};`; };
     const panel=(id)=> at===id ? "display:block;" : "display:none;";
     const filt=(list)=> HL ? list.filter(r=>r.profitPos) : list;
     const cnt=(list)=>{ const n=list.length; return `${n} ${n===1?"opportunity":"opportunities"}`; };
