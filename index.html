@@ -507,7 +507,7 @@ class Component extends DCLogic {
     if(!OP_LEAGUE[sportKey]){ this._dbgOp="OddsPapi: n/a for this sport"; }
     else if(!this.state.oddspapiKey){ this._dbgOp="OddsPapi: no key saved"; }
     else if(Array.isArray(games)){
-      try{ const op=await this.fetchOddsPapiBooks(sportKey); const m=(op&&op.length)?this.enrichOddsPapi(games,op):0; this._dbgOp=`OddsPapi: ${op?op.length:0} fixtures, ${m} matched`; }catch(e){ this._dbgOp="OddsPapi error: "+(e&&e.message||e); }
+      try{ this._opDbg=""; const op=await this.fetchOddsPapiBooks(sportKey); const m=(op&&op.length)?this.enrichOddsPapi(games,op):0; this._dbgOp=(this._opDbg||("OddsPapi: "+(op?op.length:0)+" usable"))+", "+m+" matched"; }catch(e){ this._dbgOp="OddsPapi error: "+(e&&e.message||e); }
     }
     const v=[games, remaining]; this._cache[ck]={t:now,v};
     try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", "), debugInfo:[this._dbgSgo,this._dbgOp].filter(Boolean).join(" · ")}); }catch(e){}
@@ -626,9 +626,9 @@ class Component extends DCLogic {
     const cfg=OP_LEAGUE[sportKey]; if(!cfg) return null;
     const now=Date.now(), ck="op|"+sportKey, c=this._opCache[ck];
     if(c && now-c.t<300000) return c.v;
-    const sportId=await this.opSportId(cfg.sport); if(sportId==null) return null;
-    const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null) return null;
-    const slugMap=await this.opBookSlugs(); const pairs=Object.entries(slugMap); if(!pairs.length) return null;
+    const sportId=await this.opSportId(cfg.sport); if(sportId==null){ this._opDbg="OddsPapi: sport '"+cfg.sport+"' not found"; return null; }
+    const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null){ this._opDbg="OddsPapi: no tournament match (sportId "+sportId+")"; return null; }
+    const slugMap=await this.opBookSlugs(); const pairs=Object.entries(slugMap); if(!pairs.length){ this._opDbg="OddsPapi: Fanatics/Circa not in bookmaker list"; return null; }
     const slug2canon={}; pairs.forEach(([canon,slug])=>{ slug2canon[slug]=canon; });
     const books=pairs.map(([c,s])=>s).join(",");
     const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
@@ -636,7 +636,7 @@ class Component extends DCLogic {
       this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books}),
       this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books})
     ]);
-    if(!Array.isArray(fixtures) || !oddsArr) return null;
+    if(!Array.isArray(fixtures) || !oddsArr){ this._opDbg="OddsPapi: fetch failed (fixtures="+(Array.isArray(fixtures)?fixtures.length:typeof fixtures)+", odds="+(oddsArr?"ok":"null")+", tid "+tid+", books "+books+")"; return null; }
     const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={p1:f.participant1Name, p2:f.participant2Name}; }
     const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
     const list=[];
@@ -644,6 +644,7 @@ class Component extends DCLogic {
       for(const slug in bo){ const canon=slug2canon[slug]; if(!canon) continue; const ml=this.opMoneyline(bo[slug]); if(ml&&(ml.home!=null||ml.away!=null)) bk[canon]=ml; }
       if(Object.keys(bk).length) list.push({p1:nm.p1, p2:nm.p2, books:bk});
     }
+    this._opDbg="OddsPapi: "+fixtures.length+" fixtures, "+arr.length+" odds-rows, "+list.length+" usable (tid "+tid+", books "+books+")";
     this._opCache[ck]={t:now,v:list}; return list;
   }
 
