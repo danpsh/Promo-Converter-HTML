@@ -45,7 +45,7 @@
     </div>
   </div>
 
-  <sc-if value="{{ debugShow }}" hint-placeholder-val=""><div style="margin-top:12px;background:#f1f5f9;border:1px solid #dbe3ec;border-radius:9px;padding:9px 13px;font-size:12px;color:#475569;font-family:'IBM Plex Mono',monospace;">Books in pool (last scan): {{ debugBooks }}</div></sc-if>
+  <sc-if value="{{ debugShow }}" hint-placeholder-val=""><div style="margin-top:12px;background:#f1f5f9;border:1px solid #dbe3ec;border-radius:9px;padding:9px 13px;font-size:12px;color:#475569;font-family:'IBM Plex Mono',monospace;">Books in pool (last scan): {{ debugBooks }}</div><sc-if value="{{ debugInfo }}" hint-placeholder-val=""><div style="margin-top:6px;background:#f1f5f9;border:1px solid #dbe3ec;border-radius:9px;padding:9px 13px;font-size:12px;color:#475569;font-family:'IBM Plex Mono',monospace;">{{ debugInfo }}</div></sc-if></sc-if>
 
   <!-- ============ MAIN BOOST ============ -->
   <div style="{{ mainPanelStyle }}">
@@ -438,7 +438,7 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 
 class Component extends DCLogic {
   state = {
-    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"",
+    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"", debugInfo:"",
     chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
     mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
@@ -499,14 +499,18 @@ class Component extends DCLogic {
     const remaining=res.headers.get("x-requests-remaining")||"0";
     let games=data;
     // Enrich with Caesars odds from SportsGameOdds (only for mapped leagues, only if that key is set).
-    if(this.state.sgoKey && SGO_LEAGUE[sportKey] && Array.isArray(games)){
-      try{ const sgo=await this.fetchCaesars(sportKey); if(sgo && sgo.length) this.enrichCaesars(games, sgo); }catch(e){ /* Caesars is best-effort; never block the main odds */ }
+    if(!SGO_LEAGUE[sportKey]){ this._dbgSgo="SGO: n/a for this sport"; }
+    else if(!this.state.sgoKey){ this._dbgSgo="SGO: no key saved"; }
+    else if(Array.isArray(games)){
+      try{ const sgo=await this.fetchCaesars(sportKey); const m=(sgo&&sgo.length)?this.enrichCaesars(games,sgo):0; this._dbgSgo=`SGO: ${sgo?sgo.length:0} events, ${m} matched`; }catch(e){ this._dbgSgo="SGO error: "+(e&&e.message||e); }
     }
-    if(this.state.oddspapiKey && OP_LEAGUE[sportKey] && Array.isArray(games)){
-      try{ const op=await this.fetchOddsPapiBooks(sportKey); if(op && op.length) this.enrichOddsPapi(games, op); }catch(e){ /* OddsPapi is best-effort too */ }
+    if(!OP_LEAGUE[sportKey]){ this._dbgOp="OddsPapi: n/a for this sport"; }
+    else if(!this.state.oddspapiKey){ this._dbgOp="OddsPapi: no key saved"; }
+    else if(Array.isArray(games)){
+      try{ const op=await this.fetchOddsPapiBooks(sportKey); const m=(op&&op.length)?this.enrichOddsPapi(games,op):0; this._dbgOp=`OddsPapi: ${op?op.length:0} fixtures, ${m} matched`; }catch(e){ this._dbgOp="OddsPapi error: "+(e&&e.message||e); }
     }
     const v=[games, remaining]; this._cache[ck]={t:now,v};
-    try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", ")}); }catch(e){}
+    try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", "), debugInfo:[this._dbgSgo,this._dbgOp].filter(Boolean).join(" · ")}); }catch(e){}
     return v;
   }
 
@@ -552,6 +556,7 @@ class Component extends DCLogic {
   }
 
   enrichCaesars(games, sgoEvents){
+    let matched=0;
     for(const game of games){
       const ev=sgoEvents.find(e=>{ const h=e.teams&&e.teams.home&&e.teams.home.names, a=e.teams&&e.teams.away&&e.teams.away.names; const hn=h?(h.long||h.medium||h.short):"", an=a?(a.long||a.medium||a.short):""; return [hn,an].some(n=>this.teamMatch(n,game.home_team)) && [hn,an].some(n=>this.teamMatch(n,game.away_team)); });
       if(!ev) continue;
@@ -560,8 +565,9 @@ class Component extends DCLogic {
       for(const s of sides){ let team=null; if(this.teamMatch(s.name,game.home_team)) team=game.home_team; else if(this.teamMatch(s.name,game.away_team)) team=game.away_team; if(!team||outcomes.find(o=>o.name===team)) continue; outcomes.push({name:team,price:s.price}); }
       if(!outcomes.length) continue;
       game.bookmakers=(game.bookmakers||[]).filter(b=>b.key!=="caesars");
-      game.bookmakers.push({key:"caesars", title:"Caesars", markets:[{key:"h2h", outcomes}]});
+      game.bookmakers.push({key:"caesars", title:"Caesars", markets:[{key:"h2h", outcomes}]}); matched++;
     }
+    return matched;
   }
 
   // ---- OddsPapi (Circa / Fanatics) ----
@@ -642,6 +648,7 @@ class Component extends DCLogic {
   }
 
   enrichOddsPapi(games, opList){
+    let matched=0;
     for(const game of games){
       const ev=opList.find(e=>[e.p1,e.p2].some(n=>this.teamMatch(n,game.home_team)) && [e.p1,e.p2].some(n=>this.teamMatch(n,game.away_team)));
       if(!ev) continue;
@@ -652,9 +659,10 @@ class Component extends DCLogic {
         if(p2team && b.away!=null) outcomes.push({name:p2team, price:b.away});
         if(!outcomes.length) continue;
         game.bookmakers=(game.bookmakers||[]).filter(x=>x.key!==slug);
-        game.bookmakers.push({key:slug, title:OP_TITLES[slug]||slug, markets:[{key:"h2h", outcomes}]});
+        game.bookmakers.push({key:slug, title:OP_TITLES[slug]||slug, markets:[{key:"h2h", outcomes}]}); matched++;
       }
     }
+    return matched;
   }
 
   buildFlatH2h(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
@@ -1067,7 +1075,7 @@ class Component extends DCLogic {
     const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
     return {
       apiQuota:s.apiQuota, toggleChip:(e)=>this.toggleChip(e), toggleHedge:(e)=>this.toggleHedge(e),
-      debugBooks:s.debugBooks, debugShow:!!s.debugBooks,
+      debugBooks:s.debugBooks, debugShow:!!(s.debugBooks||s.debugInfo), debugInfo:s.debugInfo,
       showKeyBar: (!s.apiKey || s.keyEditing), keySaved: (!!s.apiKey && !s.keyEditing), saveKey:()=>this.saveKey(), editKey:()=>this.editKey(),
       mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
       tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"), tabFindGame:()=>this.setActive("findgame"),
