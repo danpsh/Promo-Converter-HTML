@@ -17,7 +17,7 @@ export async function onRequest(context) {
   if (!ep)  return json({ error: "missing ep" }, 400);
   if (!key) return json({ error: "missing key" }, 401);
 
-  const allowed = ["sports", "tournaments", "fixtures", "odds-by-tournaments", "odds", "bookmakers"];
+  const allowed = ["sports", "tournaments", "fixtures", "odds-by-tournaments", "odds", "bookmakers", "markets"];
   if (!allowed.includes(ep)) return json({ error: "endpoint not allowed" }, 400);
 
   const params = new URLSearchParams();
