@@ -602,31 +602,65 @@ class Component extends DCLogic {
     return hit?hit.tournamentId:null;
   }
 
-  // Resolve OddsPapi bookmaker slugs by name (slugs can vary, e.g. "circasports").
+  // Resolve OddsPapi bookmaker slugs by name. Fanatics is served under its clone
+  // parent slug (pointsbet.com.au), so we also map cloneOf → canonical.
   async opBookSlugs(){
     if(this._opSlugs) return this._opSlugs;
-    const b=await this.opGet("bookmakers",{}); const map={};
+    const b=await this.opGet("bookmakers",{}); const req=[], s2c={};
     if(Array.isArray(b)){
       for(const x of b){ const n=this.normName(x.bookmakerName), s=this.normName(x.slug||"");
-        if(!map.fanatics && (/fanatic/.test(n)||/fanatic/.test(s))) map.fanatics=x.slug;
-        if(!map.circa && (/circa/.test(n)||/circa/.test(s))) map.circa=x.slug;
+        let canon=null;
+        if(/fanatic/.test(n)||/fanatic/.test(s)) canon="fanatics";
+        else if(/circa/.test(n)||/circa/.test(s)) canon="circa";
+        if(canon){ req.push({canon,slug:x.slug}); s2c[x.slug]=canon; if(x.cloneOf) s2c[x.cloneOf]=canon; }
       }
     }
-    this._opSlugs=map; return map;
+    this._opSlugs={req,s2c}; return this._opSlugs;
   }
 
-  // Pull the moneyline (home/away) prices for a bookmaker's market block, scanning
-  // all markets (market IDs differ by sport) and preferring the one tagged moneyline.
-  opMoneyline(bookBlock){
-    const mkts=(bookBlock&&bookBlock.markets)||{}; let hp=null,ap=null,fb=null;
-    for(const mid in mkts){ const m=mkts[mid]; if(!m||!m.outcomes) continue;
-      let h=null,a=null;
-      for(const oid in m.outcomes){ const pl=m.outcomes[oid].players&&m.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue;
-        const side=String(pl.bookmakerOutcomeId||"").toLowerCase(); const price=parseInt(String(pl.priceAmerican),10); if(isNaN(price)) continue;
-        if(side==="home") h=price; else if(side==="away") a=price; }
-      if(h!=null||a!=null){ if(/moneyline|\/ml\b|\bml\b/i.test(m.bookmakerMarketId||"")){ return {home:h,away:a}; } if(!fb) fb={home:h,away:a}; }
+  // Decimal → American, for books that only send decimal price.
+  decToAmerican(d){ d=Number(d); if(!d||d<=1) return null; return d>=2 ? Math.round((d-1)*100) : -Math.round(100/(d-1)); }
+
+  // /v4/markets metadata: map every marketId → {outcomes:{outcomeId:outcomeName}, rank}
+  // where rank>0 flags a full-game moneyline / match-result market. This is how we
+  // decode books (e.g. Fanatics) that send empty bookmakerOutcomeId labels: outcome
+  // name "1"=participant1, "2"=participant2, "X"=draw.
+  async opMarketsMap(){
+    if(this._opMarkets) return this._opMarkets;
+    const arr=await this.opGet("markets",{}); const map={};
+    if(Array.isArray(arr)){
+      for(const m of arr){
+        const outs={}; (m.outcomes||[]).forEach(o=>{ outs[o.outcomeId]=String(o.outcomeName); });
+        const name=String(m.marketName||""), type=String(m.marketType||""), period=String(m.period||"");
+        const fulltime = period==="" || /fulltime|game|regular|match/i.test(period);
+        let rank=0;
+        if(!m.playerProp && Number(m.handicap)===0 && fulltime){
+          if(/money\s*line/i.test(name)) rank=3;
+          else if(type==="1x2" && m.marketLength===2) rank=3;
+          else if(type==="1x2") rank=2;
+          else if(/match result|full time result|match winner|winner|to win/i.test(name)) rank=2;
+        }
+        map[m.marketId]={outcomes:outs, rank};
+      }
     }
-    return (hp!=null||ap!=null)?{home:hp,away:ap}:fb;
+    this._opMarkets=map; return map;
+  }
+
+  // Read participant1/participant2 moneyline prices from a bookmaker block using the
+  // markets metadata (outcomeName "1"/"2"), preferring the highest-ranked ML market.
+  opMoneyline(bookBlock, marketsMap){
+    const mkts=(bookBlock&&bookBlock.markets)||{}; let best=null, bestRank=0;
+    for(const mid in mkts){ const def=marketsMap[mid]; if(!def||!def.rank) continue;
+      const m=mkts[mid]; let o1=null,o2=null;
+      for(const oid in (m.outcomes||{})){ const oname=def.outcomes[oid]; if(oname!=="1"&&oname!=="2") continue;
+        const pl=m.outcomes[oid].players&&m.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue;
+        let price=pl.priceAmerican; if(price==null && pl.price!=null) price=this.decToAmerican(pl.price);
+        price=parseInt(String(price),10); if(isNaN(price)) continue;
+        if(oname==="1") o1=price; else o2=price;
+      }
+      if((o1!=null||o2!=null) && def.rank>bestRank){ best={o1,o2}; bestRank=def.rank; }
+    }
+    return best;
   }
 
   async fetchOddsPapiBooks(sportKey){
@@ -635,37 +669,37 @@ class Component extends DCLogic {
     if(c && now-c.t<300000) return c.v;
     const sportId=await this.opSportId(cfg.sport); if(sportId==null){ this._opDbg="OddsPapi: sport lookup failed ("+(this._opErr||"no name match")+")"; return null; }
     const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null){ this._opDbg="OddsPapi: no tournament match (sportId "+sportId+")"; return null; }
-    const slugMap=await this.opBookSlugs(); const pairs=Object.entries(slugMap); if(!pairs.length){ this._opDbg="OddsPapi: Fanatics/Circa not in bookmaker list"; return null; }
-    const slug2canon={}; pairs.forEach(([canon,slug])=>{ slug2canon[slug]=canon; });
-    const books=pairs.map(([c,s])=>s).join(",");
+    const {req,s2c}=await this.opBookSlugs(); if(!req.length){ this._opDbg="OddsPapi: Fanatics/Circa not in bookmaker list"; return null; }
+    const marketsMap=await this.opMarketsMap();
+    const books=req.map(r=>r.slug).join(",");
     const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
     const fixtures=await this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books});
     const oddsArr=await this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books});
     if(!Array.isArray(fixtures) || !oddsArr){ this._opDbg="OddsPapi: fetch failed (fixtures="+(Array.isArray(fixtures)?fixtures.length:typeof fixtures)+", odds="+(oddsArr?"ok":"null")+", err="+(this._opErr||"?")+", tid "+tid+")"; return null; }
-    const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={p1:f.participant1Name, p2:f.participant2Name}; }
+    const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={n1:f.participant1Name, n2:f.participant2Name}; }
     const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
-    const list=[];
-    for(const fx of arr){ const nm=nameMap[fx.fixtureId]||{p1:fx.participant1Name,p2:fx.participant2Name}; if(!nm.p1||!nm.p2) continue; const bo=fx.bookmakerOdds||{}; const bk={};
-      for(const slug in bo){ const canon=slug2canon[slug]; if(!canon) continue; const ml=this.opMoneyline(bo[slug]); if(ml&&(ml.home!=null||ml.away!=null)) bk[canon]=ml; }
-      if(Object.keys(bk).length) list.push({p1:nm.p1, p2:nm.p2, books:bk});
+    const list=[]; let mlHits=0;
+    for(const fx of arr){ const nm=nameMap[fx.fixtureId]||{n1:fx.participant1Name,n2:fx.participant2Name}; if(!nm.n1||!nm.n2) continue; const bo=fx.bookmakerOdds||{}; const bk={};
+      for(const slug in bo){ const canon=s2c[slug]; if(!canon) continue; const ml=this.opMoneyline(bo[slug],marketsMap); if(ml&&(ml.o1!=null||ml.o2!=null)){ bk[canon]=ml; mlHits++; } }
+      if(Object.keys(bk).length) list.push({n1:nm.n1, n2:nm.n2, books:bk});
     }
-    this._opDbg="OddsPapi: "+fixtures.length+" fixtures, "+arr.length+" odds-rows, "+list.length+" usable (tid "+tid+", books "+books+")";
+    this._opDbg="OddsPapi: "+fixtures.length+" fixtures, "+arr.length+" odds-rows, "+list.length+" usable ("+mlHits+" ml-blocks, tid "+tid+", books "+books+")";
     this._opCache[ck]={t:now,v:list}; return list;
   }
 
   enrichOddsPapi(games, opList){
     let matched=0;
     for(const game of games){
-      const ev=opList.find(e=>[e.p1,e.p2].some(n=>this.teamMatch(n,game.home_team)) && [e.p1,e.p2].some(n=>this.teamMatch(n,game.away_team)));
+      const ev=opList.find(e=>[e.n1,e.n2].some(n=>this.teamMatch(n,game.home_team)) && [e.n1,e.n2].some(n=>this.teamMatch(n,game.away_team)));
       if(!ev) continue;
-      const p1team = this.teamMatch(ev.p1,game.home_team)?game.home_team : (this.teamMatch(ev.p1,game.away_team)?game.away_team:null);
-      const p2team = this.teamMatch(ev.p2,game.home_team)?game.home_team : (this.teamMatch(ev.p2,game.away_team)?game.away_team:null);
-      for(const slug in ev.books){ const b=ev.books[slug]; const outcomes=[];
-        if(p1team && b.home!=null) outcomes.push({name:p1team, price:b.home});
-        if(p2team && b.away!=null) outcomes.push({name:p2team, price:b.away});
+      const t1 = this.teamMatch(ev.n1,game.home_team)?game.home_team : (this.teamMatch(ev.n1,game.away_team)?game.away_team:null);
+      const t2 = this.teamMatch(ev.n2,game.home_team)?game.home_team : (this.teamMatch(ev.n2,game.away_team)?game.away_team:null);
+      for(const canon in ev.books){ const b=ev.books[canon]; const outcomes=[];
+        if(t1 && b.o1!=null) outcomes.push({name:t1, price:b.o1});
+        if(t2 && b.o2!=null) outcomes.push({name:t2, price:b.o2});
         if(!outcomes.length) continue;
-        game.bookmakers=(game.bookmakers||[]).filter(x=>x.key!==slug);
-        game.bookmakers.push({key:slug, title:OP_TITLES[slug]||slug, markets:[{key:"h2h", outcomes}]}); matched++;
+        game.bookmakers=(game.bookmakers||[]).filter(x=>x.key!==canon);
+        game.bookmakers.push({key:canon, title:OP_TITLES[canon]||canon, markets:[{key:"h2h", outcomes}]}); matched++;
       }
     }
     return matched;
