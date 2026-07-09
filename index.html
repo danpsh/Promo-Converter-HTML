@@ -404,11 +404,6 @@
           <input data-sgokeyfield="1" type="password" placeholder="SportsGameOdds key…" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
           <div style="font-size:11.5px;color:#a1a1aa;margin-top:5px;">Provides: Caesars</div>
         </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:6px;">OddsPapi <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· Circa/Fanatics, optional</span> <a href="https://oddspapi.io" target="_blank" rel="noopener" style="text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:#0f766e;">get key ↗</a></div>
-          <input data-oppkeyfield="1" type="password" placeholder="OddsPapi key…" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
-          <div style="font-size:11.5px;color:#a1a1aa;margin-top:5px;">Provides: Fanatics · Circa</div>
-        </div>
         <button onClick="{{ saveKey }}" style="align-self:flex-start;background:#18181b;color:#fff;border:none;border-radius:9px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
       </div>
     </sc-if>
@@ -422,14 +417,10 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;lookaheadDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:14,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;noSweatConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;betGetConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;minProfit&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:-10,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;}}">
-const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm", "Caesars":"caesars", "Fanatics":"fanatics", "Circa":"circa" };
+const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm", "Caesars":"caesars" };
 const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup", "Wimbledon (ATP)":"tennis_atp_wimbledon", "Wimbledon (WTA)":"tennis_wta_wimbledon" };
 // The Odds API sportKey -> SportsGameOdds leagueID. Only these leagues get Caesars enrichment.
 const SGO_LEAGUE = { "basketball_wnba":"WNBA", "baseball_mlb":"MLB", "soccer_fifa_world_cup":"FIFA_WORLD_CUP" };
-// The Odds API sportKey -> OddsPapi {sportName, tournament-name regex}. Only these get Circa/Fanatics enrichment.
-const OP_LEAGUE = { "basketball_wnba":{sport:"Basketball",re:/wnba/i}, "baseball_mlb":{sport:"Baseball",re:/\b(mlb|major league)\b/i}, "soccer_fifa_world_cup":{sport:"Soccer",re:/world cup/i} };
-const OP_BOOKS = ["fanatics","circa"];
-const OP_TITLES = { fanatics:"Fanatics", circa:"Circa" };
 const BOOK_LABELS = Object.keys(book_map);
 const SPORT_LABELS = Object.keys(sports_map);
 const MAIN_PROMOS = [{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
@@ -438,7 +429,7 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 
 class Component extends DCLogic {
   state = {
-    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"", debugInfo:"",
+    apiKey:"", sgoKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"", debugInfo:"",
     chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
     mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
@@ -446,15 +437,13 @@ class Component extends DCLogic {
     mainScanning:false, soccerScanning:false, betgetScanning:false, fgScanning:false
   };
 
-  constructor(props){ super(props); this._cache={}; this._sgoCache={}; this._opCache={};
+  constructor(props){ super(props); this._cache={}; this._sgoCache={};
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.state.apiKey=k; }catch(e){}
     try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg) this.state.sgoKey=sg; }catch(e){}
-    try{ const op=localStorage.getItem("promo_oddspapi_key")||""; if(op) this.state.oddspapiKey=op; }catch(e){}
     this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); this.fgFormRef=React.createRef(); }
 
   componentDidMount(){
     try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg && !this.state.sgoKey) this.setState({sgoKey:sg}); }catch(e){}
-    try{ const op=localStorage.getItem("promo_oddspapi_key")||""; if(op && !this.state.oddspapiKey) this.setState({oddspapiKey:op}); }catch(e){}
     if(this.state.apiKey) return;
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.setState({apiKey:k}); }catch(e){}
   }
@@ -504,13 +493,8 @@ class Component extends DCLogic {
     else if(Array.isArray(games)){
       try{ const sgo=await this.fetchCaesars(sportKey); const m=(sgo&&sgo.length)?this.enrichCaesars(games,sgo):0; this._dbgSgo=`SGO: ${sgo?sgo.length:0} events, ${m} matched`; }catch(e){ this._dbgSgo="SGO error: "+(e&&e.message||e); }
     }
-    if(!OP_LEAGUE[sportKey]){ this._dbgOp="OddsPapi: n/a for this sport"; }
-    else if(!this.state.oddspapiKey){ this._dbgOp="OddsPapi: no key saved"; }
-    else if(Array.isArray(games)){
-      try{ this._opDbg=""; const op=await this.fetchOddsPapiBooks(sportKey); const m=(op&&op.length)?this.enrichOddsPapi(games,op):0; this._dbgOp=(this._opDbg||("OddsPapi: "+(op?op.length:0)+" usable"))+", "+m+" matched"; }catch(e){ this._dbgOp="OddsPapi error: "+(e&&e.message||e); }
-    }
     const v=[games, remaining]; this._cache[ck]={t:now,v};
-    try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", "), debugInfo:[this._dbgSgo,this._dbgOp].filter(Boolean).join(" · ")}); }catch(e){}
+    try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", "), debugInfo:[this._dbgSgo].filter(Boolean).join(" · ")}); }catch(e){}
     return v;
   }
 
@@ -566,143 +550,6 @@ class Component extends DCLogic {
       if(!outcomes.length) continue;
       game.bookmakers=(game.bookmakers||[]).filter(b=>b.key!=="caesars");
       game.bookmakers.push({key:"caesars", title:"Caesars", markets:[{key:"h2h", outcomes}]}); matched++;
-    }
-    return matched;
-  }
-
-  // ---- OddsPapi (Circa / Fanatics) ----
-  async opGet(ep, params){
-    const key=this.state.oddspapiKey; if(!key) return null;
-    const qs=Object.entries(params||{}).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");
-    const proxyUrl=`api/oddspapi?ep=${encodeURIComponent(ep)}&key=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
-    const directUrl=`https://api.oddspapi.io/v4/${ep}?apiKey=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
-    // OddsPapi blocks server-side (Cloudflare) IPs with 403, so call it DIRECTLY from
-    // the browser first (their API allows browser IPs). Fall back to the proxy only if
-    // the direct call is network-blocked (e.g. a firewall that filters this domain).
-    let res=null, usedProxy=false;
-    try{ res=await fetch(directUrl); }catch(e){ res=null; }
-    if(!res || !res.ok){
-      usedProxy=true;
-      try{ const pr=await fetch(proxyUrl); if(pr && pr.status!==404) res=pr; else if(!res) res=null; }catch(e){}
-    }
-    if(!res){ this._opErr=ep+": no response (direct+proxy)"; return null; }
-    if(!res.ok){ this._opErr=ep+" HTTP "+res.status+(usedProxy?" (proxy)":" (direct)"); return null; }
-    try{ return await res.json(); }catch(e){ this._opErr=ep+": bad JSON"; return null; }
-  }
-
-  async opSportId(sportName){
-    if(!this._opSports){ const s=await this.opGet("sports",{}); if(!Array.isArray(s)) return null; this._opSports=s; }
-    const hit=this._opSports.find(x=>this.normName(x.sportName)===this.normName(sportName)||this.normName(x.slug)===this.normName(sportName));
-    return hit?hit.sportId:null;
-  }
-  async opTournamentId(sportId, re){
-    this._opTourn=this._opTourn||{};
-    if(!this._opTourn[sportId]){ const t=await this.opGet("tournaments",{sportId}); this._opTourn[sportId]=Array.isArray(t)?t:[]; }
-    const hit=this._opTourn[sportId].find(x=>re.test(x.tournamentName||""));
-    return hit?hit.tournamentId:null;
-  }
-
-  // Resolve OddsPapi bookmaker slugs by name. Fanatics is served under its clone
-  // parent slug (pointsbet.com.au), so we also map cloneOf → canonical.
-  async opBookSlugs(){
-    if(this._opSlugs) return this._opSlugs;
-    const b=await this.opGet("bookmakers",{}); const req=[], s2c={};
-    if(Array.isArray(b)){
-      for(const x of b){ const n=this.normName(x.bookmakerName), s=this.normName(x.slug||"");
-        let canon=null;
-        if(/fanatic/.test(n)||/fanatic/.test(s)) canon="fanatics";
-        else if(/circa/.test(n)||/circa/.test(s)) canon="circa";
-        if(canon){ req.push({canon,slug:x.slug}); s2c[x.slug]=canon; if(x.cloneOf) s2c[x.cloneOf]=canon; }
-      }
-    }
-    this._opSlugs={req,s2c}; return this._opSlugs;
-  }
-
-  // Decimal → American, for books that only send decimal price.
-  decToAmerican(d){ d=Number(d); if(!d||d<=1) return null; return d>=2 ? Math.round((d-1)*100) : -Math.round(100/(d-1)); }
-
-  // /v4/markets metadata: map every marketId → {outcomes:{outcomeId:outcomeName}, rank}
-  // where rank>0 flags a full-game moneyline / match-result market. This is how we
-  // decode books (e.g. Fanatics) that send empty bookmakerOutcomeId labels: outcome
-  // name "1"=participant1, "2"=participant2, "X"=draw.
-  async opMarketsMap(){
-    if(this._opMarkets) return this._opMarkets;
-    const arr=await this.opGet("markets",{}); const map={};
-    if(Array.isArray(arr)){
-      for(const m of arr){
-        const outs={}; (m.outcomes||[]).forEach(o=>{ outs[o.outcomeId]=String(o.outcomeName); });
-        const name=String(m.marketName||""), type=String(m.marketType||"").toLowerCase(), per=String(m.period||"").toLowerCase();
-        // Exclude partial-game periods (1st-5-innings "p1+p2+p3+p4+p5", halves, quarters,
-        // innings, sets…). Full-game moneyline uses period "result" / "fulltime" / "".
-        const partial = per.indexOf("+")>=0 || /p\d|inning|half|quarter|period|\bset\b|\bmap\b|1st|2nd|first|second|1h|2h|q[1-4]/.test(per);
-        let rank=0;
-        if(!m.playerProp && Number(m.handicap)===0 && m.marketLength===2 && !partial){
-          if(type==="moneyline") rank=4;                                   // US 2-way ML (baseball/basketball)
-          else if(/money\s*line/i.test(name)) rank=3;
-          else if(type==="1x2") rank=3;                                    // 2-way match result
-          else if(/full time result|match result|match winner|to win|winner|^result/i.test(name)) rank=2;
-        }
-        map[m.marketId]={outcomes:outs, rank};
-      }
-    }
-    this._opMarkets=map; return map;
-  }
-
-  // Read participant1/participant2 moneyline prices from a bookmaker block using the
-  // markets metadata (outcomeName "1"/"2"), preferring the highest-ranked ML market.
-  opMoneyline(bookBlock, marketsMap){
-    const mkts=(bookBlock&&bookBlock.markets)||{}; let best=null, bestRank=0;
-    for(const mid in mkts){ const def=marketsMap[mid]; if(!def||!def.rank) continue;
-      const m=mkts[mid]; let o1=null,o2=null;
-      for(const oid in (m.outcomes||{})){ const oname=def.outcomes[oid]; if(oname!=="1"&&oname!=="2") continue;
-        const pl=m.outcomes[oid].players&&m.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue;
-        let price=pl.priceAmerican; if(price==null && pl.price!=null) price=this.decToAmerican(pl.price);
-        price=parseInt(String(price),10); if(isNaN(price)) continue;
-        if(oname==="1") o1=price; else o2=price;
-      }
-      if((o1!=null||o2!=null) && def.rank>bestRank){ best={o1,o2}; bestRank=def.rank; }
-    }
-    return best;
-  }
-
-  async fetchOddsPapiBooks(sportKey){
-    const cfg=OP_LEAGUE[sportKey]; if(!cfg) return null;
-    const now=Date.now(), ck="op|"+sportKey, c=this._opCache[ck];
-    if(c && now-c.t<300000) return c.v;
-    const sportId=await this.opSportId(cfg.sport); if(sportId==null){ this._opDbg="OddsPapi: sport lookup failed ("+(this._opErr||"no name match")+")"; return null; }
-    const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null){ this._opDbg="OddsPapi: no tournament match (sportId "+sportId+")"; return null; }
-    const {req,s2c}=await this.opBookSlugs(); if(!req.length){ this._opDbg="OddsPapi: Fanatics/Circa not in bookmaker list"; return null; }
-    const marketsMap=await this.opMarketsMap();
-    const books=req.map(r=>r.slug).join(",");
-    const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
-    const fixtures=await this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books});
-    const oddsArr=await this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books});
-    if(!Array.isArray(fixtures) || !oddsArr){ this._opDbg="OddsPapi: fetch failed (fixtures="+(Array.isArray(fixtures)?fixtures.length:typeof fixtures)+", odds="+(oddsArr?"ok":"null")+", err="+(this._opErr||"?")+", tid "+tid+")"; return null; }
-    const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={n1:f.participant1Name, n2:f.participant2Name}; }
-    const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
-    const list=[]; let mlHits=0;
-    for(const fx of arr){ const nm=nameMap[fx.fixtureId]||{n1:fx.participant1Name,n2:fx.participant2Name}; if(!nm.n1||!nm.n2) continue; const bo=fx.bookmakerOdds||{}; const bk={};
-      for(const slug in bo){ const canon=s2c[slug]; if(!canon) continue; const ml=this.opMoneyline(bo[slug],marketsMap); if(ml&&(ml.o1!=null||ml.o2!=null)){ bk[canon]=ml; mlHits++; } }
-      if(Object.keys(bk).length) list.push({n1:nm.n1, n2:nm.n2, books:bk});
-    }
-    this._opDbg="OddsPapi: "+fixtures.length+" fixtures, "+arr.length+" odds-rows, "+list.length+" usable ("+mlHits+" ml-blocks, tid "+tid+", books "+books+")";
-    this._opCache[ck]={t:now,v:list}; return list;
-  }
-
-  enrichOddsPapi(games, opList){
-    let matched=0;
-    for(const game of games){
-      const ev=opList.find(e=>[e.n1,e.n2].some(n=>this.teamMatch(n,game.home_team)) && [e.n1,e.n2].some(n=>this.teamMatch(n,game.away_team)));
-      if(!ev) continue;
-      const t1 = this.teamMatch(ev.n1,game.home_team)?game.home_team : (this.teamMatch(ev.n1,game.away_team)?game.away_team:null);
-      const t2 = this.teamMatch(ev.n2,game.home_team)?game.home_team : (this.teamMatch(ev.n2,game.away_team)?game.away_team:null);
-      for(const canon in ev.books){ const b=ev.books[canon]; const outcomes=[];
-        if(t1 && b.o1!=null) outcomes.push({name:t1, price:b.o1});
-        if(t2 && b.o2!=null) outcomes.push({name:t2, price:b.o2});
-        if(!outcomes.length) continue;
-        game.bookmakers=(game.bookmakers||[]).filter(x=>x.key!==canon);
-        game.bookmakers.push({key:canon, title:OP_TITLES[canon]||canon, markets:[{key:"h2h", outcomes}]}); matched++;
-      }
     }
     return matched;
   }
@@ -958,7 +805,7 @@ class Component extends DCLogic {
   toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
   readForm(){ const out={}; document.querySelectorAll("input[data-field]").forEach(n=>{ out[n.dataset.field]=n.value; }); return out; }
   needKey(setter){ if(!this.state.apiKey){ this.setState(setter("Paste your Odds API key up top first — it's free at the-odds-api.com and saves in your browser.")); this.setState({keyEditing:true}); return true; } return false; }
-  saveKey(){ const el=document.querySelector('input[data-keyfield]'); const se=document.querySelector('input[data-sgokeyfield]'); const oe=document.querySelector('input[data-oppkeyfield]'); const k=(el&&el.value||"").trim(); const sg=(se&&se.value||"").trim(); const op=(oe&&oe.value||"").trim(); const next={}; if(k){ try{ localStorage.setItem("promo_odds_api_key",k); }catch(e){} next.apiKey=k; } if(sg){ try{ localStorage.setItem("promo_sgo_api_key",sg); }catch(e){} next.sgoKey=sg; } if(op){ try{ localStorage.setItem("promo_oddspapi_key",op); }catch(e){} next.oddspapiKey=op; } this._cache={}; this._sgoCache={}; this._opCache={}; this.setState({...next, keyEditing:false, mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"", fgGamesMsg:""}); }
+  saveKey(){ const el=document.querySelector('input[data-keyfield]'); const se=document.querySelector('input[data-sgokeyfield]'); const k=(el&&el.value||"").trim(); const sg=(se&&se.value||"").trim(); const next={}; if(k){ try{ localStorage.setItem("promo_odds_api_key",k); }catch(e){} next.apiKey=k; } if(sg){ try{ localStorage.setItem("promo_sgo_api_key",sg); }catch(e){} next.sgoKey=sg; } this._cache={}; this._sgoCache={}; this.setState({...next, keyEditing:false, mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"", fgGamesMsg:""}); }
   editKey(){ this.setState({keyEditing:true}); }
 
   async scanMain(){
