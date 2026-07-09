@@ -45,6 +45,8 @@
     </div>
   </div>
 
+  <sc-if value="{{ debugShow }}" hint-placeholder-val=""><div style="margin-top:12px;background:#f1f5f9;border:1px solid #dbe3ec;border-radius:9px;padding:9px 13px;font-size:12px;color:#475569;font-family:'IBM Plex Mono',monospace;">Books in pool (last scan): {{ debugBooks }}</div></sc-if>
+
   <!-- ============ MAIN BOOST ============ -->
   <div style="{{ mainPanelStyle }}">
     <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
@@ -436,7 +438,7 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 
 class Component extends DCLogic {
   state = {
-    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false,
+    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"",
     chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
     mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
@@ -503,7 +505,9 @@ class Component extends DCLogic {
     if(this.state.oddspapiKey && OP_LEAGUE[sportKey] && Array.isArray(games)){
       try{ const op=await this.fetchOddsPapiBooks(sportKey); if(op && op.length) this.enrichOddsPapi(games, op); }catch(e){ /* OddsPapi is best-effort too */ }
     }
-    const v=[games, remaining]; this._cache[ck]={t:now,v}; return v;
+    const v=[games, remaining]; this._cache[ck]={t:now,v};
+    try{ this._dbg=this._dbg||new Set(); for(const g of games){ for(const b of (g.bookmakers||[])) this._dbg.add(b.key); } this.setState({debugBooks:[...this._dbg].sort().join(", ")}); }catch(e){}
+    return v;
   }
 
   // ---- SportsGameOdds (Caesars) ----
@@ -915,7 +919,7 @@ class Component extends DCLogic {
     if(this.needKey(m=>({mainMsg:m}))) return;
     const sports=[...ch.mainSports];
     const p={ book, strat, boost_val:parseFloat(f.boost)||0, wager:parseFloat(f.mb_wager)||0, hedge_books: this.state.hedgeAny ? [] : [...ch.mainHedge], sports: sports.length?sports:SPORT_LABELS };
-    this.setState({mainScanning:true, mainMsg:"", mainResults:[]});
+    this.setState({mainScanning:true, mainMsg:"", mainResults:[]}); this._dbg=new Set();
     try{ const opps=await this.runPromoScan(p);
       const vms=opps.sort((a,b)=>b.exact_profit-a.exact_profit).slice(0,15).map((o,i)=>this.finalize(this.buildMainVM(o,i)));
       this.setState({mainResults:vms, mainScanning:false, mainMsg: vms.length?"":"No profitable matches found."});
@@ -935,7 +939,7 @@ class Component extends DCLogic {
       book2:[...ch.sc_book2], strat2:type2, boost2:parseFloat(f.sc_boost2)||0, wager2:parseFloat(f.sc_stake2)||0, cap2_val:parseFloat(f.sc_cap2)||0,
       book3:[...ch.sc_book3], strat3:type3, boost3:parseFloat(f.sc_boost3)||0, wager3:parseFloat(f.sc_stake3)||0, cap3_val:parseFloat(f.sc_cap3)||0,
       leagues:["FIFA World Cup"] };
-    this.setState({soccerScanning:true, soccerMsg:"", soccerResults:[]});
+    this.setState({soccerScanning:true, soccerMsg:"", soccerResults:[]}); this._dbg=new Set();
     try{ const opps=await this.runSoccerScan(sc);
       const vms=opps.sort((a,b)=>b.net_profit-a.net_profit).slice(0,10).map((o,i)=>this.finalize(this.buildSoccerVM(o,i)));
       let msg="";
@@ -954,7 +958,7 @@ class Component extends DCLogic {
     if(this.needKey(m=>({betgetMsg:m}))) return;
     const sp=[...this.state.chips.bg_sports];
     const bg={ book, wager:parseFloat(f.bg_wager)||0, bonus_val:parseFloat(f.bonus)||0, sports: sp.length?sp:SPORT_LABELS };
-    this.setState({betgetScanning:true, betgetMsg:"", betgetResults:[]});
+    this.setState({betgetScanning:true, betgetMsg:"", betgetResults:[]}); this._dbg=new Set();
     try{ const opps=await this.runBetGetScan(bg);
       const vms=opps.sort((a,b)=>b.net_value-a.net_value).slice(0,10).map((o,i)=>this.finalize(this.buildBetGetVM(o,i)));
       this.setState({betgetResults:vms, betgetScanning:false, betgetMsg: vms.length?"":"No tight lines found for qualification."});
@@ -1040,7 +1044,7 @@ class Component extends DCLogic {
     if(this.needKey(m=>({fgMsg:m}))) return;
     const game=this.state.fgGamesRaw[gi];
     const p={ book, strat, boost_val:parseFloat(f.fg_boost)||0, wager:parseFloat(f.fg_wager)||0 };
-    this.setState({fgScanning:true, fgMsg:"", fgResults:[]});
+    this.setState({fgScanning:true, fgMsg:"", fgResults:[]}); this._dbg=new Set();
     try{ const opps=this.runFindGameScan(game, this.state.fgSport||"", p);
       const vms=opps.sort((a,b)=>b.exact_profit-a.exact_profit).slice(0,15).map((o,i)=>this.finalize(this.buildMainVM(o,i)));
       this.setState({fgResults:vms, fgScanning:false, fgMsg: vms.length?"":"No profitable hedge for this game with those settings. Try a different book or check the boost."});
@@ -1063,6 +1067,7 @@ class Component extends DCLogic {
     const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
     return {
       apiQuota:s.apiQuota, toggleChip:(e)=>this.toggleChip(e), toggleHedge:(e)=>this.toggleHedge(e),
+      debugBooks:s.debugBooks, debugShow:!!s.debugBooks,
       showKeyBar: (!s.apiKey || s.keyEditing), keySaved: (!!s.apiKey && !s.keyEditing), saveKey:()=>this.saveKey(), editKey:()=>this.editKey(),
       mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
       tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"), tabFindGame:()=>this.setActive("findgame"),
