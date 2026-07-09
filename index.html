@@ -585,14 +585,43 @@ class Component extends DCLogic {
     return hit?hit.tournamentId:null;
   }
 
+  // Resolve OddsPapi bookmaker slugs by name (slugs can vary, e.g. "circasports").
+  async opBookSlugs(){
+    if(this._opSlugs) return this._opSlugs;
+    const b=await this.opGet("bookmakers",{}); const map={};
+    if(Array.isArray(b)){
+      for(const x of b){ const n=this.normName(x.bookmakerName), s=this.normName(x.slug||"");
+        if(!map.fanatics && (/fanatic/.test(n)||/fanatic/.test(s))) map.fanatics=x.slug;
+        if(!map.circa && (/circa/.test(n)||/circa/.test(s))) map.circa=x.slug;
+      }
+    }
+    this._opSlugs=map; return map;
+  }
+
+  // Pull the moneyline (home/away) prices for a bookmaker's market block, scanning
+  // all markets (market IDs differ by sport) and preferring the one tagged moneyline.
+  opMoneyline(bookBlock){
+    const mkts=(bookBlock&&bookBlock.markets)||{}; let hp=null,ap=null,fb=null;
+    for(const mid in mkts){ const m=mkts[mid]; if(!m||!m.outcomes) continue;
+      let h=null,a=null;
+      for(const oid in m.outcomes){ const pl=m.outcomes[oid].players&&m.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue;
+        const side=String(pl.bookmakerOutcomeId||"").toLowerCase(); const price=parseInt(String(pl.priceAmerican),10); if(isNaN(price)) continue;
+        if(side==="home") h=price; else if(side==="away") a=price; }
+      if(h!=null||a!=null){ if(/moneyline|\/ml\b|\bml\b/i.test(m.bookmakerMarketId||"")){ return {home:h,away:a}; } if(!fb) fb={home:h,away:a}; }
+    }
+    return (hp!=null||ap!=null)?{home:hp,away:ap}:fb;
+  }
+
   async fetchOddsPapiBooks(sportKey){
     const cfg=OP_LEAGUE[sportKey]; if(!cfg) return null;
     const now=Date.now(), ck="op|"+sportKey, c=this._opCache[ck];
     if(c && now-c.t<300000) return c.v;
     const sportId=await this.opSportId(cfg.sport); if(sportId==null) return null;
     const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null) return null;
+    const slugMap=await this.opBookSlugs(); const pairs=Object.entries(slugMap); if(!pairs.length) return null;
+    const slug2canon={}; pairs.forEach(([canon,slug])=>{ slug2canon[slug]=canon; });
+    const books=pairs.map(([c,s])=>s).join(",");
     const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
-    const books=OP_BOOKS.join(",");
     const [fixtures, oddsArr]=await Promise.all([
       this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books}),
       this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books})
@@ -601,11 +630,8 @@ class Component extends DCLogic {
     const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={p1:f.participant1Name, p2:f.participant2Name}; }
     const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
     const list=[];
-    for(const fx of arr){ const nm=nameMap[fx.fixtureId]; if(!nm) continue; const bo=fx.bookmakerOdds||{}; const bk={};
-      for(const slug in bo){ if(!OP_BOOKS.includes(slug)) continue; const mkts=bo[slug].markets||{}; const mk=mkts["101"]; if(!mk||!mk.outcomes) continue; let hp=null,ap=null;
-        for(const oid in mk.outcomes){ const pl=mk.outcomes[oid].players&&mk.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue; const side=pl.bookmakerOutcomeId; const price=parseInt(String(pl.priceAmerican),10); if(isNaN(price)) continue; if(side==="home") hp=price; else if(side==="away") ap=price; }
-        if(hp!=null||ap!=null) bk[slug]={home:hp, away:ap};
-      }
+    for(const fx of arr){ const nm=nameMap[fx.fixtureId]||{p1:fx.participant1Name,p2:fx.participant2Name}; if(!nm.p1||!nm.p2) continue; const bo=fx.bookmakerOdds||{}; const bk={};
+      for(const slug in bo){ const canon=slug2canon[slug]; if(!canon) continue; const ml=this.opMoneyline(bo[slug]); if(ml&&(ml.home!=null||ml.away!=null)) bk[canon]=ml; }
       if(Object.keys(bk).length) list.push({p1:nm.p1, p2:nm.p2, books:bk});
     }
     this._opCache[ck]={t:now,v:list}; return list;
