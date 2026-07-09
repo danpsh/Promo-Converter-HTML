@@ -576,11 +576,12 @@ class Component extends DCLogic {
     const qs=Object.entries(params||{}).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");
     const proxyUrl=`api/oddspapi?ep=${encodeURIComponent(ep)}&key=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
     const directUrl=`https://api.oddspapi.io/v4/${ep}?apiKey=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
-    let res=null;
+    let res=null, usedProxy=true;
     try{ res=await fetch(proxyUrl); if(res.status===404){ res=null; } }catch(e){ res=null; }
-    if(!res){ try{ res=await fetch(directUrl); }catch(e){ return null; } }
-    if(!res || !res.ok) return null;
-    try{ return await res.json(); }catch(e){ return null; }
+    if(!res){ usedProxy=false; try{ res=await fetch(directUrl); }catch(e){ this._opErr=ep+": blocked/offline"; return null; } }
+    if(!res){ this._opErr=ep+": no response"; return null; }
+    if(!res.ok){ this._opErr=ep+" HTTP "+res.status+(usedProxy?" (proxy)":" (direct)"); return null; }
+    try{ return await res.json(); }catch(e){ this._opErr=ep+": bad JSON"; return null; }
   }
 
   async opSportId(sportName){
@@ -626,7 +627,7 @@ class Component extends DCLogic {
     const cfg=OP_LEAGUE[sportKey]; if(!cfg) return null;
     const now=Date.now(), ck="op|"+sportKey, c=this._opCache[ck];
     if(c && now-c.t<300000) return c.v;
-    const sportId=await this.opSportId(cfg.sport); if(sportId==null){ this._opDbg="OddsPapi: sport '"+cfg.sport+"' not found"; return null; }
+    const sportId=await this.opSportId(cfg.sport); if(sportId==null){ this._opDbg="OddsPapi: sport lookup failed ("+(this._opErr||"no name match")+")"; return null; }
     const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null){ this._opDbg="OddsPapi: no tournament match (sportId "+sportId+")"; return null; }
     const slugMap=await this.opBookSlugs(); const pairs=Object.entries(slugMap); if(!pairs.length){ this._opDbg="OddsPapi: Fanatics/Circa not in bookmaker list"; return null; }
     const slug2canon={}; pairs.forEach(([canon,slug])=>{ slug2canon[slug]=canon; });
