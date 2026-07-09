@@ -631,14 +631,16 @@ class Component extends DCLogic {
     if(Array.isArray(arr)){
       for(const m of arr){
         const outs={}; (m.outcomes||[]).forEach(o=>{ outs[o.outcomeId]=String(o.outcomeName); });
-        const name=String(m.marketName||""), type=String(m.marketType||""), period=String(m.period||"");
-        const fulltime = period==="" || /fulltime|game|regular|match/i.test(period);
+        const name=String(m.marketName||""), type=String(m.marketType||"").toLowerCase(), per=String(m.period||"").toLowerCase();
+        // Exclude partial-game periods (1st-5-innings "p1+p2+p3+p4+p5", halves, quarters,
+        // innings, sets…). Full-game moneyline uses period "result" / "fulltime" / "".
+        const partial = per.indexOf("+")>=0 || /p\d|inning|half|quarter|period|\bset\b|\bmap\b|1st|2nd|first|second|1h|2h|q[1-4]/.test(per);
         let rank=0;
-        if(!m.playerProp && Number(m.handicap)===0 && fulltime){
-          if(/money\s*line/i.test(name)) rank=3;
-          else if(type==="1x2" && m.marketLength===2) rank=3;
-          else if(type==="1x2") rank=2;
-          else if(/match result|full time result|match winner|winner|to win/i.test(name)) rank=2;
+        if(!m.playerProp && Number(m.handicap)===0 && m.marketLength===2 && !partial){
+          if(type==="moneyline") rank=4;                                   // US 2-way ML (baseball/basketball)
+          else if(/money\s*line/i.test(name)) rank=3;
+          else if(type==="1x2") rank=3;                                    // 2-way match result
+          else if(/full time result|match result|match winner|to win|winner|^result/i.test(name)) rank=2;
         }
         map[m.marketId]={outcomes:outs, rank};
       }
