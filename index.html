@@ -308,20 +308,21 @@
     <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
       <div ref="{{ fgFormRef }}">
         <div style="margin-bottom:18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sport <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— pick one, then load</span></div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sport <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— tap one to load its games</span></div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-            <sc-for list="{{ chips_fg_sport }}" as="c" hint-placeholder-count="5"><span data-field="fg_sport" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for>
-            <button onClick="{{ loadGames }}" style="background:#fff;border:1px solid #d4d4d8;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:#3f3f46;cursor:pointer;">Load games</button>
+            <sc-for list="{{ chips_fg_sport }}" as="c" hint-placeholder-count="5"><span data-field="fg_sport" data-single="1" data-value="{{ c.value }}" onClick="{{ selectSport }}" style="{{ c.style }}">{{ c.label }}</span></sc-for>
             <span style="font-size:12.5px;color:#8a8a93;">{{ fgGamesMsg }}</span>
           </div>
         </div>
 
         <div style="margin-bottom:18px;">
           <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Game</div>
-          <select data-field="fg_game" value="{{ fgSelValue }}" onChange="{{ onGameSelect }}" style="width:100%;height:42px;padding:0 12px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;color:#18181b;">
-            <option value="" disabled>Load games, then choose…</option>
+          <sc-if value="{{ fgNoSport }}" hint-placeholder-val="{{ true }}"><div style="width:100%;height:42px;display:flex;align-items:center;padding:0 12px;border:1px dashed #e4e4e7;border-radius:10px;background:#fafafa;font-size:14px;color:#a1a1aa;">Pick a sport above first</div></sc-if>
+          <sc-if value="{{ fgNeedLoad }}" hint-placeholder-val=""><button onClick="{{ loadGames }}" style="width:100%;height:42px;border:1px solid #18181b;border-radius:10px;background:#18181b;color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">{{ fgLoadLabel }}</button></sc-if>
+          <sc-if value="{{ fgLoaded }}" hint-placeholder-val=""><select data-field="fg_game" value="{{ fgSelValue }}" onChange="{{ onGameSelect }}" style="width:100%;height:42px;padding:0 12px;border:1px solid #e4e4e7;border-radius:10px;background:#fff;font-size:14px;color:#18181b;">
+            <option value="" disabled>{{ fgGamePlaceholder }}</option>
             <sc-for list="{{ fgGameOptions }}" as="g" hint-placeholder-count="0"><option value="{{ g.idx }}">{{ g.label }}</option></sc-for>
-          </select>
+          </select></sc-if>
         </div>
 
         <div style="margin-bottom:18px;">
@@ -861,8 +862,8 @@ class Component extends DCLogic {
     }catch(e){ this.setState({betgetScanning:false, betgetMsg:"Scan error: "+e.message, betgetResults:[]}); }
   }
 
-  async loadGames(){
-    const sport=[...this.state.chips.fg_sport][0]||"";
+  async loadGames(sportArg){
+    const sport=sportArg||[...this.state.chips.fg_sport][0]||"";
     if(!sport){ this.setState({fgGamesMsg:"Pick a sport first."}); return; }
     if(this.needKey(m=>({fgMsg:m}))) return;
     this.setState({fgLoadingGames:true, fgGamesMsg:"Loading…", fgGames:[], fgGamesRaw:[], fg_selIdx:""});
@@ -927,6 +928,7 @@ class Component extends DCLogic {
   }
 
   onGameSelect(e){ this.setState({fg_selIdx:e.target.value}); }
+  selectSport(e){ const v=e.currentTarget.dataset.value; this.setState({chips:{...this.state.chips, fg_sport:new Set([v])}, fgGames:[], fgGamesRaw:[], fg_selIdx:"", fgGamesMsg:"", fgMsg:""}); }
 
   async scanFindGame(){
     const f=this.readForm();
@@ -975,8 +977,13 @@ class Component extends DCLogic {
       chips_sc_type1:chip("sc_type1",SOCCER_PROMOS,true), chips_sc_type2:chip("sc_type2",SOCCER_PROMOS,true), chips_sc_type3:chip("sc_type3",SOCCER_PROMOS,true),
       chips_bg_book:chip("bg_book",BOOK_LABELS,false), chips_bg_sports:chip("bg_sports",SPORT_LABELS,false),
       chips_fg_book:chip("fg_book",BOOK_LABELS,false), chips_fg_strat:chip("fg_strat",MAIN_PROMOS,false), chips_fg_sport:chip("fg_sport",SPORT_LABELS,false),
-      fgFormRef:this.fgFormRef, loadGames:()=>this.loadGames(), scanFindGame:()=>this.scanFindGame(), onGameSelect:(e)=>this.onGameSelect(e), fgSelValue:s.fg_selIdx||"",
+      fgFormRef:this.fgFormRef, loadGames:()=>this.loadGames(), scanFindGame:()=>this.scanFindGame(), onGameSelect:(e)=>this.onGameSelect(e), selectSport:(e)=>this.selectSport(e), fgSelValue:s.fg_selIdx||"",
       fgGamesMsg: s.fgLoadingGames?"Loading…":s.fgGamesMsg, fgGameOptions:s.fgGames,
+      fgGamePlaceholder: "Choose a game…",
+      fgNoSport: ![...s.chips.fg_sport][0],
+      fgNeedLoad: !![...s.chips.fg_sport][0] && s.fgGames.length===0,
+      fgLoaded: s.fgGames.length>0,
+      fgLoadLabel: s.fgLoadingGames ? "Loading games…" : ("Load "+([...s.chips.fg_sport][0]||"")+" games"),
       fgStatus:s.fgScanning?"Scanning…":"", fgMsg:s.fgMsg,
       fgShowHint: s.fgResults.length===0 && !s.fgScanning && !s.fgMsg,
       fgHasResults:s.fgResults.length>0, fgList, fgCountLabel:cnt(fgList),
