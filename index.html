@@ -639,11 +639,9 @@ class Component extends DCLogic {
     const slug2canon={}; pairs.forEach(([canon,slug])=>{ slug2canon[slug]=canon; });
     const books=pairs.map(([c,s])=>s).join(",");
     const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
-    const [fixtures, oddsArr]=await Promise.all([
-      this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books}),
-      this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books})
-    ]);
-    if(!Array.isArray(fixtures) || !oddsArr){ this._opDbg="OddsPapi: fetch failed (fixtures="+(Array.isArray(fixtures)?fixtures.length:typeof fixtures)+", odds="+(oddsArr?"ok":"null")+", tid "+tid+", books "+books+")"; return null; }
+    const fixtures=await this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books});
+    const oddsArr=await this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books});
+    if(!Array.isArray(fixtures) || !oddsArr){ this._opDbg="OddsPapi: fetch failed (fixtures="+(Array.isArray(fixtures)?fixtures.length:typeof fixtures)+", odds="+(oddsArr?"ok":"null")+", err="+(this._opErr||"?")+", tid "+tid+")"; return null; }
     const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={p1:f.participant1Name, p2:f.participant2Name}; }
     const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
     const list=[];
