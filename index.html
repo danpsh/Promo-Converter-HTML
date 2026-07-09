@@ -36,21 +36,6 @@
     </div>
   </header>
 
-  <sc-if value="{{ showKeyBar }}" hint-placeholder-val="{{ true }}">
-    <div style="margin-top:14px;background:#fff;border:1px solid #e6e6e9;border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
-      <span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;white-space:nowrap;">Odds API key</span>
-      <input data-keyfield="1" type="password" placeholder="Paste your key…" style="flex:1;min-width:170px;height:38px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
-      <button onClick="{{ saveKey }}" style="background:#18181b;color:#fff;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Save</button>
-      <a href="https://the-odds-api.com" target="_blank" rel="noopener" style="font-size:12.5px;color:#0f766e;white-space:nowrap;">Get a free key ↗</a>
-    </div>
-  </sc-if>
-  <sc-if value="{{ keySaved }}" hint-placeholder-val="">
-    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;">
-      <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#15803d;">✓ API key saved in this browser</span>
-      <button onClick="{{ editKey }}" style="background:#fff;border:1px solid #e2e2e5;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600;color:#52525b;cursor:pointer;">Change</button>
-    </div>
-  </sc-if>
-
   <div style="margin-top:22px;">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;">
       <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
@@ -403,11 +388,46 @@
   </div>
 
   <p style="margin-top:30px;font-size:12px;color:#a8a8af;line-height:1.6;">Times shown in CT · window = today + next 2 days · results with profit &gt; −$10 surfaced (near-arb included) · Bet &amp; Get net value assumes 65% bonus conversion. Odds cached 5 min to preserve quota.</p>
+
+  <div style="margin-top:20px;border-top:1px solid #e6e6e9;padding-top:22px;">
+    <sc-if value="{{ showKeyBar }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;border:1px solid #e6e6e9;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px;max-width:440px;">
+        <div style="font-size:13px;font-weight:700;color:#27272a;">API keys</div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:6px;">Odds API key <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— DraftKings · FanDuel · theScore / ESPN · BetMGM</span> <a href="https://the-odds-api.com" target="_blank" rel="noopener" style="text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:#0f766e;">get key ↗</a></div>
+          <input data-keyfield="1" type="password" placeholder="Paste your key…" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:6px;">SportsGameOdds <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· Caesars, optional</span> <a href="https://sportsgameodds.com" target="_blank" rel="noopener" style="text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:#0f766e;">get key ↗</a></div>
+          <input data-sgokeyfield="1" type="password" placeholder="SportsGameOdds key…" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
+          <div style="font-size:11.5px;color:#a1a1aa;margin-top:5px;">Provides: Caesars</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:6px;">OddsPapi <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· Circa/Fanatics, optional</span> <a href="https://oddspapi.io" target="_blank" rel="noopener" style="text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:#0f766e;">get key ↗</a></div>
+          <input data-oppkeyfield="1" type="password" placeholder="OddsPapi key…" style="width:100%;height:40px;padding:0 12px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;">
+          <div style="font-size:11.5px;color:#a1a1aa;margin-top:5px;">Provides: Fanatics · Circa</div>
+        </div>
+        <button onClick="{{ saveKey }}" style="align-self:flex-start;background:#18181b;color:#fff;border:none;border-radius:9px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ keySaved }}" hint-placeholder-val="">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#15803d;">✓ API keys saved in this browser</span>
+        <button onClick="{{ editKey }}" style="background:#fff;border:1px solid #e2e2e5;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600;color:#52525b;cursor:pointer;">Change</button>
+      </div>
+    </sc-if>
+  </div>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;lookaheadDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:14,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;noSweatConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;betGetConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;minProfit&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:-10,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;}}">
-const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm" };
+const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm", "Caesars":"caesars", "Fanatics":"fanatics", "Circa":"circa" };
 const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup", "Wimbledon (ATP)":"tennis_atp_wimbledon", "Wimbledon (WTA)":"tennis_wta_wimbledon" };
+// The Odds API sportKey -> SportsGameOdds leagueID. Only these leagues get Caesars enrichment.
+const SGO_LEAGUE = { "basketball_wnba":"WNBA", "baseball_mlb":"MLB", "soccer_fifa_world_cup":"FIFA_WORLD_CUP" };
+// The Odds API sportKey -> OddsPapi {sportName, tournament-name regex}. Only these get Circa/Fanatics enrichment.
+const OP_LEAGUE = { "basketball_wnba":{sport:"Basketball",re:/wnba/i}, "baseball_mlb":{sport:"Baseball",re:/\b(mlb|major league)\b/i}, "soccer_fifa_world_cup":{sport:"Soccer",re:/world cup/i} };
+const OP_BOOKS = ["fanatics","circa"];
+const OP_TITLES = { fanatics:"Fanatics", circa:"Circa" };
 const BOOK_LABELS = Object.keys(book_map);
 const SPORT_LABELS = Object.keys(sports_map);
 const MAIN_PROMOS = [{value:"Profit Boost (%)",label:"Profit Boost"},{value:"Bonus Bet",label:"Bonus Bet"},{value:"No-Sweat Bet",label:"No-Sweat"}];
@@ -416,7 +436,7 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 
 class Component extends DCLogic {
   state = {
-    apiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false,
+    apiKey:"", sgoKey:"", oddspapiKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false,
     chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
     mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
@@ -424,11 +444,15 @@ class Component extends DCLogic {
     mainScanning:false, soccerScanning:false, betgetScanning:false, fgScanning:false
   };
 
-  constructor(props){ super(props); this._cache={};
+  constructor(props){ super(props); this._cache={}; this._sgoCache={}; this._opCache={};
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.state.apiKey=k; }catch(e){}
+    try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg) this.state.sgoKey=sg; }catch(e){}
+    try{ const op=localStorage.getItem("promo_oddspapi_key")||""; if(op) this.state.oddspapiKey=op; }catch(e){}
     this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); this.fgFormRef=React.createRef(); }
 
   componentDidMount(){
+    try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg && !this.state.sgoKey) this.setState({sgoKey:sg}); }catch(e){}
+    try{ const op=localStorage.getItem("promo_oddspapi_key")||""; if(op && !this.state.oddspapiKey) this.setState({oddspapiKey:op}); }catch(e){}
     if(this.state.apiKey) return;
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.setState({apiKey:k}); }catch(e){}
   }
@@ -471,7 +495,136 @@ class Component extends DCLogic {
     }
     const data=await res.json();
     const remaining=res.headers.get("x-requests-remaining")||"0";
-    const v=[data, remaining]; this._cache[ck]={t:now,v}; return v;
+    let games=data;
+    // Enrich with Caesars odds from SportsGameOdds (only for mapped leagues, only if that key is set).
+    if(this.state.sgoKey && SGO_LEAGUE[sportKey] && Array.isArray(games)){
+      try{ const sgo=await this.fetchCaesars(sportKey); if(sgo && sgo.length) this.enrichCaesars(games, sgo); }catch(e){ /* Caesars is best-effort; never block the main odds */ }
+    }
+    if(this.state.oddspapiKey && OP_LEAGUE[sportKey] && Array.isArray(games)){
+      try{ const op=await this.fetchOddsPapiBooks(sportKey); if(op && op.length) this.enrichOddsPapi(games, op); }catch(e){ /* OddsPapi is best-effort too */ }
+    }
+    const v=[games, remaining]; this._cache[ck]={t:now,v}; return v;
+  }
+
+  // ---- SportsGameOdds (Caesars) ----
+  normName(s){ return (s||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+  teamMatch(a,b){ a=this.normName(a); b=this.normName(b); if(!a||!b) return false; if(a===b) return true; if(a.includes(b)||b.includes(a)) return true; const at=a.split(" "), bt=b.split(" "); const al=at[at.length-1], bl=bt[bt.length-1]; return al===bl && al.length>2; }
+
+  async fetchCaesars(sportKey){
+    const leagueID=SGO_LEAGUE[sportKey]; if(!leagueID) return null;
+    const now=Date.now(), ck="sgo|"+leagueID, c=this._sgoCache[ck];
+    if(c && now-c.t<300000) return c.v;
+    const key=this.state.sgoKey;
+    const after=new Date().toISOString();
+    const before=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
+    const oddIDs="points-home-game-ml-home,points-away-game-ml-away,points-home-reg-ml-home,points-away-reg-ml-away";
+    const qs=`league=${encodeURIComponent(leagueID)}&key=${encodeURIComponent(key)}&startsAfter=${encodeURIComponent(after)}&startsBefore=${encodeURIComponent(before)}&oddID=${encodeURIComponent(oddIDs)}`;
+    const proxyUrl=`api/sgo?${qs}`;
+    const directUrl=`https://api.sportsgameodds.com/v2/events/?leagueID=${encodeURIComponent(leagueID)}&apiKey=${encodeURIComponent(key)}&oddsAvailable=true&type=match&bookmakerID=caesars&oddID=${encodeURIComponent(oddIDs)}&startsAfter=${encodeURIComponent(after)}&startsBefore=${encodeURIComponent(before)}&limit=100`;
+    let res=null;
+    try{ res=await fetch(proxyUrl); if(res.status===404){ res=null; } }catch(e){ res=null; }
+    if(!res){ try{ res=await fetch(directUrl); }catch(e){ return null; } }
+    if(!res.ok) return null;
+    const json=await res.json();
+    const list=(json && (json.data||json.events)) || [];
+    this._sgoCache[ck]={t:now,v:list}; return list;
+  }
+
+  extractCaesarsSides(ev){
+    const out=[], odds=ev.odds||{}, seen={};
+    for(const k in odds){ const o=odds[k];
+      if(!o || o.betTypeID!=="ml") continue;
+      if(o.sideID!=="home" && o.sideID!=="away") continue;
+      const bb=o.byBookmaker && o.byBookmaker.caesars;
+      if(!bb || bb.available===false || bb.odds==null) continue;
+      const side=o.statEntityID;
+      if(seen[side]) continue;
+      const price=parseInt(String(bb.odds).replace("+",""),10); if(isNaN(price)) continue;
+      const nm=ev.teams && ev.teams[side] && ev.teams[side].names;
+      const name=nm ? (nm.long||nm.medium||nm.short||side) : side;
+      seen[side]=true; out.push({side,name,price});
+    }
+    return out;
+  }
+
+  enrichCaesars(games, sgoEvents){
+    for(const game of games){
+      const ev=sgoEvents.find(e=>{ const h=e.teams&&e.teams.home&&e.teams.home.names, a=e.teams&&e.teams.away&&e.teams.away.names; const hn=h?(h.long||h.medium||h.short):"", an=a?(a.long||a.medium||a.short):""; return [hn,an].some(n=>this.teamMatch(n,game.home_team)) && [hn,an].some(n=>this.teamMatch(n,game.away_team)); });
+      if(!ev) continue;
+      const sides=this.extractCaesarsSides(ev); if(!sides.length) continue;
+      const outcomes=[];
+      for(const s of sides){ let team=null; if(this.teamMatch(s.name,game.home_team)) team=game.home_team; else if(this.teamMatch(s.name,game.away_team)) team=game.away_team; if(!team||outcomes.find(o=>o.name===team)) continue; outcomes.push({name:team,price:s.price}); }
+      if(!outcomes.length) continue;
+      game.bookmakers=(game.bookmakers||[]).filter(b=>b.key!=="caesars");
+      game.bookmakers.push({key:"caesars", title:"Caesars", markets:[{key:"h2h", outcomes}]});
+    }
+  }
+
+  // ---- OddsPapi (Circa / Fanatics) ----
+  async opGet(ep, params){
+    const key=this.state.oddspapiKey; if(!key) return null;
+    const qs=Object.entries(params||{}).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");
+    const proxyUrl=`api/oddspapi?ep=${encodeURIComponent(ep)}&key=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
+    const directUrl=`https://api.oddspapi.io/v4/${ep}?apiKey=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
+    let res=null;
+    try{ res=await fetch(proxyUrl); if(res.status===404){ res=null; } }catch(e){ res=null; }
+    if(!res){ try{ res=await fetch(directUrl); }catch(e){ return null; } }
+    if(!res || !res.ok) return null;
+    try{ return await res.json(); }catch(e){ return null; }
+  }
+
+  async opSportId(sportName){
+    if(!this._opSports){ const s=await this.opGet("sports",{}); if(!Array.isArray(s)) return null; this._opSports=s; }
+    const hit=this._opSports.find(x=>this.normName(x.sportName)===this.normName(sportName)||this.normName(x.slug)===this.normName(sportName));
+    return hit?hit.sportId:null;
+  }
+  async opTournamentId(sportId, re){
+    this._opTourn=this._opTourn||{};
+    if(!this._opTourn[sportId]){ const t=await this.opGet("tournaments",{sportId}); this._opTourn[sportId]=Array.isArray(t)?t:[]; }
+    const hit=this._opTourn[sportId].find(x=>re.test(x.tournamentName||""));
+    return hit?hit.tournamentId:null;
+  }
+
+  async fetchOddsPapiBooks(sportKey){
+    const cfg=OP_LEAGUE[sportKey]; if(!cfg) return null;
+    const now=Date.now(), ck="op|"+sportKey, c=this._opCache[ck];
+    if(c && now-c.t<300000) return c.v;
+    const sportId=await this.opSportId(cfg.sport); if(sportId==null) return null;
+    const tid=await this.opTournamentId(sportId, cfg.re); if(tid==null) return null;
+    const from=new Date().toISOString(), to=new Date(now+(this.lookaheadDays()+1)*86400000).toISOString();
+    const books=OP_BOOKS.join(",");
+    const [fixtures, oddsArr]=await Promise.all([
+      this.opGet("fixtures",{tournamentId:tid, from, to, statusId:0, hasOdds:true, bookmakers:books}),
+      this.opGet("odds-by-tournaments",{tournamentIds:tid, bookmakers:books})
+    ]);
+    if(!Array.isArray(fixtures) || !oddsArr) return null;
+    const nameMap={}; for(const f of fixtures){ nameMap[f.fixtureId]={p1:f.participant1Name, p2:f.participant2Name}; }
+    const arr=Array.isArray(oddsArr)?oddsArr:[oddsArr];
+    const list=[];
+    for(const fx of arr){ const nm=nameMap[fx.fixtureId]; if(!nm) continue; const bo=fx.bookmakerOdds||{}; const bk={};
+      for(const slug in bo){ if(!OP_BOOKS.includes(slug)) continue; const mkts=bo[slug].markets||{}; const mk=mkts["101"]; if(!mk||!mk.outcomes) continue; let hp=null,ap=null;
+        for(const oid in mk.outcomes){ const pl=mk.outcomes[oid].players&&mk.outcomes[oid].players["0"]; if(!pl||pl.active===false) continue; const side=pl.bookmakerOutcomeId; const price=parseInt(String(pl.priceAmerican),10); if(isNaN(price)) continue; if(side==="home") hp=price; else if(side==="away") ap=price; }
+        if(hp!=null||ap!=null) bk[slug]={home:hp, away:ap};
+      }
+      if(Object.keys(bk).length) list.push({p1:nm.p1, p2:nm.p2, books:bk});
+    }
+    this._opCache[ck]={t:now,v:list}; return list;
+  }
+
+  enrichOddsPapi(games, opList){
+    for(const game of games){
+      const ev=opList.find(e=>[e.p1,e.p2].some(n=>this.teamMatch(n,game.home_team)) && [e.p1,e.p2].some(n=>this.teamMatch(n,game.away_team)));
+      if(!ev) continue;
+      const p1team = this.teamMatch(ev.p1,game.home_team)?game.home_team : (this.teamMatch(ev.p1,game.away_team)?game.away_team:null);
+      const p2team = this.teamMatch(ev.p2,game.home_team)?game.home_team : (this.teamMatch(ev.p2,game.away_team)?game.away_team:null);
+      for(const slug in ev.books){ const b=ev.books[slug]; const outcomes=[];
+        if(p1team && b.home!=null) outcomes.push({name:p1team, price:b.home});
+        if(p2team && b.away!=null) outcomes.push({name:p2team, price:b.away});
+        if(!outcomes.length) continue;
+        game.bookmakers=(game.bookmakers||[]).filter(x=>x.key!==slug);
+        game.bookmakers.push({key:slug, title:OP_TITLES[slug]||slug, markets:[{key:"h2h", outcomes}]});
+      }
+    }
   }
 
   buildFlatH2h(game, allowed){ const flat=[]; for(const bm of (game.bookmakers||[])){ if(!allowed.includes(bm.key)) continue; const m=(bm.markets||[]).find(x=>x.key==="h2h"); if(!m) continue; for(const o of m.outcomes) flat.push({book_key:bm.key,book_title:bm.title,team:o.name,price:o.price}); } return flat; }
@@ -725,7 +878,7 @@ class Component extends DCLogic {
   toggleHedge(e){ const v=e.currentTarget.dataset.value, ch=this.state.chips; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...ch, mainHedge:new Set()}}); return; } const source=[...ch.mb_book][0]||""; if(v===source) return; const set=new Set(ch.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...ch, mainHedge:set}}); }
   readForm(){ const out={}; document.querySelectorAll("input[data-field]").forEach(n=>{ out[n.dataset.field]=n.value; }); return out; }
   needKey(setter){ if(!this.state.apiKey){ this.setState(setter("Paste your Odds API key up top first — it's free at the-odds-api.com and saves in your browser.")); this.setState({keyEditing:true}); return true; } return false; }
-  saveKey(){ const el=document.querySelector('input[data-keyfield]'); const k=(el&&el.value||"").trim(); if(!k) return; try{ localStorage.setItem("promo_odds_api_key",k); }catch(e){} this._cache={}; this.setState({apiKey:k, keyEditing:false, mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"", fgGamesMsg:""}); }
+  saveKey(){ const el=document.querySelector('input[data-keyfield]'); const se=document.querySelector('input[data-sgokeyfield]'); const oe=document.querySelector('input[data-oppkeyfield]'); const k=(el&&el.value||"").trim(); const sg=(se&&se.value||"").trim(); const op=(oe&&oe.value||"").trim(); const next={}; if(k){ try{ localStorage.setItem("promo_odds_api_key",k); }catch(e){} next.apiKey=k; } if(sg){ try{ localStorage.setItem("promo_sgo_api_key",sg); }catch(e){} next.sgoKey=sg; } if(op){ try{ localStorage.setItem("promo_oddspapi_key",op); }catch(e){} next.oddspapiKey=op; } this._cache={}; this._sgoCache={}; this._opCache={}; this.setState({...next, keyEditing:false, mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"", fgGamesMsg:""}); }
   editKey(){ this.setState({keyEditing:true}); }
 
   async scanMain(){
