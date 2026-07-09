@@ -576,10 +576,16 @@ class Component extends DCLogic {
     const qs=Object.entries(params||{}).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");
     const proxyUrl=`api/oddspapi?ep=${encodeURIComponent(ep)}&key=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
     const directUrl=`https://api.oddspapi.io/v4/${ep}?apiKey=${encodeURIComponent(key)}${qs?"&"+qs:""}`;
-    let res=null, usedProxy=true;
-    try{ res=await fetch(proxyUrl); if(res.status===404){ res=null; } }catch(e){ res=null; }
-    if(!res){ usedProxy=false; try{ res=await fetch(directUrl); }catch(e){ this._opErr=ep+": blocked/offline"; return null; } }
-    if(!res){ this._opErr=ep+": no response"; return null; }
+    // OddsPapi blocks server-side (Cloudflare) IPs with 403, so call it DIRECTLY from
+    // the browser first (their API allows browser IPs). Fall back to the proxy only if
+    // the direct call is network-blocked (e.g. a firewall that filters this domain).
+    let res=null, usedProxy=false;
+    try{ res=await fetch(directUrl); }catch(e){ res=null; }
+    if(!res || !res.ok){
+      usedProxy=true;
+      try{ const pr=await fetch(proxyUrl); if(pr && pr.status!==404) res=pr; else if(!res) res=null; }catch(e){}
+    }
+    if(!res){ this._opErr=ep+": no response (direct+proxy)"; return null; }
     if(!res.ok){ this._opErr=ep+" HTTP "+res.status+(usedProxy?" (proxy)":" (direct)"); return null; }
     try{ return await res.json(); }catch(e){ this._opErr=ep+": bad JSON"; return null; }
   }
