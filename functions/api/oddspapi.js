@@ -31,7 +31,11 @@ export async function onRequest(context) {
 
   let res;
   try {
-    res = await fetch(api);
+    res = await fetch(api, { headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Accept": "application/json",
+      "Referer": "https://oddspapi.io/",
+    } });
   } catch (e) {
     return json({ error: "upstream fetch failed" }, 502);
   }
