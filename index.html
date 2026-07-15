@@ -40,6 +40,7 @@
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px;background:#e8e8ea;border:1px solid #e0e0e3;border-radius:13px;padding:4px;">
       <button onClick="{{ tabMain }}" style="{{ mainTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#64748b;flex:none;"></span>Main Boost</button>
       <button onClick="{{ tabSoccer }}" style="{{ soccerTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex:none;"></span>Multi-Book Soccer</button>
+      <button onClick="{{ tabDual }}" style="{{ dualTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#e11d48;flex:none;"></span>Dual Boost</button>
       <button onClick="{{ tabBetGet }}" style="{{ betgetTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;flex:none;"></span>Bet &amp; Get</button>
       <button onClick="{{ tabFindGame }}" style="{{ findgameTabStyle }}"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex:none;"></span>Find a Game</button>
     </div>
@@ -389,6 +390,100 @@
     </sc-if>
   </div>
 
+  <!-- ============ DUAL BOOST ============ -->
+  <div style="{{ dualPanelStyle }}">
+    <div style="margin-top:20px;background:#fff;border:1px solid #e6e6e9;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+      <div ref="{{ dualFormRef }}">
+        <div style="font-size:12.5px;color:#71717a;margin-bottom:16px;line-height:1.5;">Both legs can carry a promo. Bet 1 is your source (the amount you bet = its Promo Cap); the hedge stake on Bet 2 is solved for you. A boost on the hedge shrinks its cost — cutting your loss or locking a profit.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
+
+          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#be123c;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#e11d48;"></span>Bet 1 · Source</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Book <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">· pick one</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_db_book1 }}" as="c" hint-placeholder-count="4"><span data-field="db_book1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_db_type1 }}" as="c" hint-placeholder-count="4"><span data-field="db_type1" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="db_boost1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">bet size</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="db_cap1" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="border:1px solid #eaeaed;border-radius:13px;padding:16px;background:#fbfbfc;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>Bet 2 · Hedge</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Books <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">none = all others</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_db_book2 }}" as="c" hint-placeholder-count="4"><span data-field="db_book2" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Type <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">Straight Cash = no promo</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ chips_db_type2 }}" as="c" hint-placeholder-count="4"><span data-field="db_type2" data-single="1" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.styleSm }}">{{ c.label }}</span></sc-for></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Boost</div><div style="position:relative;"><input data-field="db_boost2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 26px 0 11px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"><span style="position:absolute;right:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">%</span></div></div>
+                <div style="flex:1;"><div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a93;margin-bottom:7px;">Promo Cap <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">0 = none</span></div><div style="position:relative;"><span style="position:absolute;left:10px;top:0;height:40px;display:flex;align-items:center;color:#a1a1aa;font-size:13px;pointer-events:none;">$</span><input data-field="db_cap2" type="number" min="0" step="5" placeholder="0" style="width:100%;height:40px;padding:0 11px 0 22px;border:1px solid #e4e4e7;border-radius:9px;font-size:13.5px;font-family:'IBM Plex Mono',monospace;background:#fff;color:#18181b;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8a93;margin-bottom:9px;">Sports <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b4b4bb;">— none = all</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ chips_db_sports }}" as="c" hint-placeholder-count="3"><span data-field="db_sports" data-value="{{ c.value }}" onClick="{{ toggleChip }}" style="{{ c.style }}">{{ c.label }}</span></sc-for></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:20px;border-top:1px solid #efeff1;">
+          <button onClick="{{ scanDual }}" style="background:#18181b;color:#fff;border:none;border-radius:11px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;">Scan</button>
+          <span style="font-size:13px;color:#71717a;">{{ dualStatus }}</span>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ dualMsg }}" hint-placeholder-val=""><div style="margin-top:16px;padding:13px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;font-size:13.5px;color:#92400e;">{{ dualMsg }}</div></sc-if>
+    <sc-if value="{{ dualShowHint }}" hint-placeholder-val=""><div style="margin-top:16px;text-align:center;padding:34px 20px;color:#a1a1aa;font-size:13.5px;">Set a promo on each book, then <strong style="color:#71717a;">Scan</strong> to see the best two-promo hedges.</div></sc-if>
+
+    <sc-if value="{{ dualHasResults }}" hint-placeholder-val="">
+      <div style="margin-top:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:600;color:#52525b;">{{ dualCountLabel }}</span>
+          <button onClick="{{ toggleLosses }}" style="{{ hideLossesStyle }}">{{ hideLossesLabel }}</button>
+        </div>
+        <sc-for list="{{ dualList }}" as="r" hint-placeholder-count="0">
+          <details style="border:1px solid #e7e7ea;border-radius:13px;background:#fff;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03);">
+            <summary style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;">
+              <span style="flex:none;width:27px;height:27px;border-radius:8px;background:#f1f1f3;color:#52525b;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ r.rank }}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:600;color:#27272a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.game }}</span><span style="display:block;font-size:12px;color:#8a8a93;margin-top:2px;">{{ r.meta }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:{{ r.profitColor }};white-space:nowrap;">{{ r.profitStr }}</span>
+            </summary>
+            <div style="padding:2px 16px 16px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+                <sc-for list="{{ r.legs }}" as="leg" hint-placeholder-count="2">
+                  <div style="{{ leg.cardStyle }}">
+                    <sc-if value="{{ leg.role }}" hint-placeholder-val=""><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin-bottom:4px;">{{ leg.role }}</div></sc-if>
+                    <div style="{{ leg.titleStyle }}">{{ leg.title }}</div>
+                    <sc-if value="{{ leg.sub }}" hint-placeholder-val=""><div style="font-size:12px;font-style:italic;color:#71717a;margin:1px 0 6px;">{{ leg.sub }}</div></sc-if>
+                    <sc-for list="{{ leg.lines }}" as="ln" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px;"><span style="color:#71717a;">{{ ln.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#18181b;font-weight:500;">{{ ln.value }}</span></div></sc-for>
+                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#18181b;">{{ leg.footer }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+                <sc-for list="{{ r.metrics }}" as="m" hint-placeholder-count="1"><div style="{{ m.boxStyle }}"><div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;">{{ m.label }}</div><div style="{{ m.valStyle }}">{{ m.value }}</div></div></sc-for>
+              </div>
+            </div>
+          </details>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
   <p style="margin-top:30px;font-size:12px;color:#a8a8af;line-height:1.6;">Times shown in CT · window = today + next 2 days · results with profit &gt; −$10 surfaced (near-arb included) · Bet &amp; Get net value assumes 65% bonus conversion. Odds cached 5 min to preserve quota.</p>
 
   <div style="margin-top:20px;border-top:1px solid #e6e6e9;padding-top:22px;">
@@ -418,7 +513,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;lookaheadDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:14,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;noSweatConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;betGetConversion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.65,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;},&quot;minProfit&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:-10,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Engine settings&quot;}}">
 const book_map = { "DraftKings":"draftkings", "FanDuel":"fanduel", "theScore / ESPN":"espnbet", "BetMGM":"betmgm", "Caesars":"caesars" };
-const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup", "Wimbledon (ATP)":"tennis_atp_wimbledon", "Wimbledon (WTA)":"tennis_wta_wimbledon" };
+const sports_map = { "WNBA":"basketball_wnba", "MLB":"baseball_mlb", "FIFA World Cup":"soccer_fifa_world_cup" };
 // The Odds API sportKey -> SportsGameOdds leagueID. Only these leagues get Caesars enrichment.
 const SGO_LEAGUE = { "basketball_wnba":"WNBA", "baseball_mlb":"MLB", "soccer_fifa_world_cup":"FIFA_WORLD_CUP" };
 const BOOK_LABELS = Object.keys(book_map);
@@ -430,17 +525,17 @@ const TONE = { info:{bg:"#eff5ff",bd:"#d3e2ff",ac:"#1d4ed8"}, success:{bg:"#f0fa
 class Component extends DCLogic {
   state = {
     apiKey:"", sgoKey:"", apiQuota:"—", activeTab:"main", hideLosses:false, hedgeAny:true, keyEditing:false, debugBooks:"", debugInfo:"",
-    chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
+    chips:{ mb_book:new Set(), mb_strat:new Set(), mainHedge:new Set(), mainSports:new Set(), sc_book1:new Set(), sc_book2:new Set(), sc_book3:new Set(), sc_type1:new Set(), sc_type2:new Set(), sc_type3:new Set(), db_book1:new Set(), db_type1:new Set(), db_book2:new Set(), db_type2:new Set(), db_sports:new Set(), bg_book:new Set(), bg_sports:new Set(), fg_book:new Set(), fg_strat:new Set(), fg_sport:new Set() },
     fgGames:[], fgGamesRaw:[], fgLoadingGames:false, fgGamesMsg:"", fg_selIdx:"",
-    mainResults:[], soccerResults:[], betgetResults:[], fgResults:[],
-    mainMsg:"", soccerMsg:"", betgetMsg:"", fgMsg:"",
-    mainScanning:false, soccerScanning:false, betgetScanning:false, fgScanning:false
+    mainResults:[], soccerResults:[], dualResults:[], betgetResults:[], fgResults:[],
+    mainMsg:"", soccerMsg:"", dualMsg:"", betgetMsg:"", fgMsg:"",
+    mainScanning:false, soccerScanning:false, dualScanning:false, betgetScanning:false, fgScanning:false
   };
 
   constructor(props){ super(props); this._cache={}; this._sgoCache={};
     try{ const k=localStorage.getItem("promo_odds_api_key")||""; if(k) this.state.apiKey=k; }catch(e){}
     try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg) this.state.sgoKey=sg; }catch(e){}
-    this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.betgetFormRef=React.createRef(); this.fgFormRef=React.createRef(); }
+    this.mainFormRef=React.createRef(); this.soccerFormRef=React.createRef(); this.dualFormRef=React.createRef(); this.betgetFormRef=React.createRef(); this.fgFormRef=React.createRef(); }
 
   componentDidMount(){
     try{ const sg=localStorage.getItem("promo_sgo_api_key")||""; if(sg && !this.state.sgoKey) this.setState({sgoKey:sg}); }catch(e){}
@@ -848,6 +943,103 @@ class Component extends DCLogic {
     }catch(e){ this.setState({soccerScanning:false, soccerMsg:"Scan error: "+e.message, soccerResults:[]}); }
   }
 
+  async runDualScan(d){
+    const book1_key=book_map[d.book1];
+    const book2_keys = d.book2.length ? d.book2.map(b=>book_map[b]).filter(v=>v!==book1_key) : Object.values(book_map).filter(v=>v!==book1_key);
+    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
+    const opps=[]; this._dualStat={games:0, twoWay:0};
+    const leg_payout=(w_total,strat,boost_pct,m_raw,cap_val)=>{
+      const m_boosted = strat==="Profit Boost (%)" ? m_raw*(1+boost_pct/100) : m_raw;
+      let w_promo,w_cash;
+      if(strat!=="Straight Cash" && cap_val>0 && w_total>cap_val){ w_promo=cap_val; w_cash=w_total-cap_val; }
+      else { w_promo = strat!=="Straight Cash" ? w_total : 0.0; w_cash = strat!=="Straight Cash" ? 0.0 : w_total; }
+      let raw_pay,outlay;
+      if(strat==="Bonus Bet"){ raw_pay=(w_promo*m_boosted)+(w_cash*(1+m_raw)); outlay=w_cash; }
+      else if(strat==="No-Sweat Bet"){ raw_pay=(w_promo*(1+m_raw))+(w_cash*(1+m_raw)); outlay=w_total; }
+      else { raw_pay=(w_promo*(1+m_boosted))+(w_cash*(1+m_raw)); outlay=w_total; }
+      return [raw_pay,outlay,w_promo,w_cash];
+    };
+    for(const sport_label of d.sports){
+      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
+      if(!games) continue; this.setState({apiQuota:remaining});
+      for(const game of games){
+        if(!this.gameNotStarted(game.commence_time)) continue;
+        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        this._dualStat.games++;
+        const flat=this.buildFlatH2h(game,[book1_key,...book2_keys]); if(!flat.length) continue;
+        const unique=[...new Set(flat.map(o=>o.team))]; if(unique.length!==2) continue;
+        this._dualStat.twoWay++;
+        const game_label=`${game.away_team||"Away"} vs ${game.home_team||"Home"}`, game_time=this.fmtTime(game.commence_time);
+        const src=flat.filter(o=>o.book_key===book1_key);
+        const hedge=flat.filter(o=>book2_keys.includes(o.book_key));
+        for(const o1 of src){
+          const opp=unique.filter(t=>t!==o1.team); if(!opp.length) continue;
+          const cands=hedge.filter(h=>h.team===opp[0]); if(!cands.length) continue;
+          for(const o2 of cands){
+            const m1=this.mult(o1.price);
+            const [target_pay,outlay1,w1_promo,w1_cash]=leg_payout(d.wager1,d.strat1,d.boost1,m1,d.cap1_val);
+            const w1_total=d.wager1;
+            const m2=this.mult(o2.price);
+            const m2b = d.strat2==="Profit Boost (%)" ? m2*(1+d.boost2/100) : m2;
+            const div_promo2 = d.strat2==="Bonus Bet" ? m2b : (1+m2b); const div_cash2 = 1+m2;
+            let w2_promo,w2_cash;
+            if(d.strat2!=="Straight Cash" && d.cap2_val>0){ const max2=d.cap2_val*div_promo2; if(target_pay>max2){ w2_promo=d.cap2_val; w2_cash=(target_pay-max2)/div_cash2; } else { w2_promo=target_pay/div_promo2; w2_cash=0.0; } }
+            else if(d.strat2==="Straight Cash"){ w2_promo=0.0; w2_cash=target_pay/div_cash2; }
+            else { w2_promo=target_pay/div_promo2; w2_cash=0.0; }
+            const w2_total=w2_promo+w2_cash;
+            const outlay2 = d.strat2==="Bonus Bet" ? w2_cash : w2_total;
+            const net_profit=target_pay-(outlay1+outlay2);
+            if(net_profit<=this.thresh()) continue;
+            opps.push({ game:game_label, sport:sport_label, time:game_time, net_profit,
+              o1_book:o1.book_title,o1_team:o1.team,o1_price:o1.price,o1_wager:w1_total,o1_promo:w1_promo,o1_cash:w1_cash,o1_strat:d.strat1,o1_boost:d.strat1==="Profit Boost (%)"?d.boost1:0,
+              o2_book:o2.book_title,o2_team:o2.team,o2_price:o2.price,o2_wager:w2_total,o2_promo:w2_promo,o2_cash:w2_cash,o2_strat:d.strat2,o2_boost:d.strat2==="Profit Boost (%)"?d.boost2:0 });
+          }
+        }
+      }
+    }
+    const seen={};
+    for(const op of opps){ const key=op.game+"|"+op.o1_book+"|"+op.o2_book; if(!(key in seen)||op.net_profit>seen[key].net_profit) seen[key]=op; }
+    return Object.values(seen);
+  }
+
+  buildDualVM(op,i){
+    const profit=op.net_profit, sign=profit>=0?"+":"";
+    const mk=(tone,book,strat,boost,wager,promo,cash,team,price)=>{
+      const promoLabel = boost>0 ? `${strat} +${boost}%` : strat;
+      const lines=[{label:"Total Bet",value:this.money(wager)}];
+      if(strat!=="Straight Cash"){ lines.push({label:"↳ Promo Stake",value:this.money(promo)}); if(cash>0) lines.push({label:"↳ Cash Top-Up",value:this.money(cash)}); }
+      return {tone,title:book,sub:promoLabel,lines,footer:`${team} @ ${this.priceStr(price)}`};
+    };
+    const legs=[
+      mk("info",op.o1_book,op.o1_strat,op.o1_boost,op.o1_wager,op.o1_promo,op.o1_cash,op.o1_team,op.o1_price),
+      mk("success",op.o2_book,op.o2_strat,op.o2_boost,op.o2_wager,op.o2_promo,op.o2_cash,op.o2_team,op.o2_price)
+    ];
+    return { rank:i+1, game:op.game, meta:`${op.time} · ${op.sport} · 2-way`, profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:profit>=0?"Net Profit":"Net Loss (minimized)",value:`${sign}${this.money(profit)}`,tone:profit>=0?"pos":"neg"}], caption:"" };
+  }
+
+  async scanDual(){
+    const f=this.readForm(); const ch=this.state.chips;
+    const book1=[...ch.db_book1][0]||"", type1=[...ch.db_type1][0]||"", type2=[...ch.db_type2][0]||"";
+    if(!book1||!type1||!type2){ this.setState({dualMsg:"Pick a source book and a promo type for both bets.", dualResults:[]}); return; }
+    const cap1=parseFloat(f.db_cap1)||0;
+    if(cap1<=0){ this.setState({dualMsg:"Enter Bet 1's Promo Cap — that's the amount you bet on the source leg. The hedge stake is solved for you.", dualResults:[]}); return; }
+    if(this.needKey(m=>({dualMsg:m}))) return;
+    const sp=[...ch.db_sports];
+    const d={ book1, strat1:type1, boost1:parseFloat(f.db_boost1)||0, wager1:cap1, cap1_val:cap1,
+      book2:[...ch.db_book2], strat2:type2, boost2:parseFloat(f.db_boost2)||0, cap2_val:parseFloat(f.db_cap2)||0,
+      sports: sp.length?sp:SPORT_LABELS };
+    this.setState({dualScanning:true, dualMsg:"", dualResults:[]}); this._dbg=new Set();
+    try{ const opps=await this.runDualScan(d);
+      const vms=opps.sort((a,b)=>b.net_profit-a.net_profit).slice(0,15).map((o,i)=>this.finalize(this.buildDualVM(o,i)));
+      let msg="";
+      if(!vms.length){ const st=this._dualStat||{games:0,twoWay:0};
+        if(st.games===0) msg="No upcoming games in the look-ahead window for the chosen sports.";
+        else if(st.twoWay===0) msg="Found games, but none had a 2-way moneyline across your source + hedge books.";
+        else msg="No results above the loss threshold. Try different books, promos, or boost values."; }
+      this.setState({dualResults:vms, dualScanning:false, dualMsg:msg});
+    }catch(e){ this.setState({dualScanning:false, dualMsg:"Scan error: "+e.message, dualResults:[]}); }
+  }
+
   async scanBetGet(){
     const f=this.readForm(this.betgetFormRef.current);
     const book=[...this.state.chips.bg_book][0]||"";
@@ -959,7 +1151,7 @@ class Component extends DCLogic {
     const panel=(id)=> at===id ? "display:block;" : "display:none;";
     const filt=(list)=> HL ? list.filter(r=>r.profitPos) : list;
     const cnt=(list)=>{ const n=list.length; return `${n} ${n===1?"opportunity":"opportunities"}`; };
-    const mainList=filt(s.mainResults), soccerList=filt(s.soccerResults), betgetList=filt(s.betgetResults), fgList=filt(s.fgResults);
+    const mainList=filt(s.mainResults), soccerList=filt(s.soccerResults), betgetList=filt(s.betgetResults), fgList=filt(s.fgResults); const dualList=filt(s.dualResults);
     const HA=s.hedgeAny, source=[...s.chips.mb_book][0]||"";
     const hedgeStyle=(sel,disabled)=> "display:inline-flex;align-items:center;padding:10px 15px;border-radius:999px;font-size:13px;user-select:none;transition:all .12s;white-space:nowrap;cursor:"+(disabled?"not-allowed":"pointer")+";"+(disabled?"background:#f4f4f5;color:#c4c4c9;border:1px solid #ececef;":(sel?"background:#18181b;color:#fff;border:1px solid #18181b;":"background:#fff;color:#52525b;border:1px solid #e2e2e5;"));
     const chips_hedge=[{value:"__any",label:"Any (all others)",style:hedgeStyle(HA,false)}].concat(BOOK_LABELS.map(b=>({value:b,label:b,style:hedgeStyle(!HA && s.chips.mainHedge.has(b), b===source)})));
@@ -968,14 +1160,18 @@ class Component extends DCLogic {
       debugBooks:s.debugBooks, debugShow:!!(s.debugBooks||s.debugInfo), debugInfo:s.debugInfo,
       showKeyBar: (!s.apiKey || s.keyEditing), keySaved: (!!s.apiKey && !s.keyEditing), saveKey:()=>this.saveKey(), editKey:()=>this.editKey(),
       mainFormRef:this.mainFormRef, soccerFormRef:this.soccerFormRef, betgetFormRef:this.betgetFormRef,
-      tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabBetGet:()=>this.setActive("betget"), tabFindGame:()=>this.setActive("findgame"),
-      mainTabStyle:tab("main"), soccerTabStyle:tab("soccer"), betgetTabStyle:tab("betget"), findgameTabStyle:tab("findgame"),
-      mainPanelStyle:panel("main"), soccerPanelStyle:panel("soccer"), betgetPanelStyle:panel("betget"), findgamePanelStyle:panel("findgame"),
+      tabMain:()=>this.setActive("main"), tabSoccer:()=>this.setActive("soccer"), tabDual:()=>this.setActive("dual"), tabBetGet:()=>this.setActive("betget"), tabFindGame:()=>this.setActive("findgame"),
+      mainTabStyle:tab("main"), soccerTabStyle:tab("soccer"), dualTabStyle:tab("dual"), betgetTabStyle:tab("betget"), findgameTabStyle:tab("findgame"),
+      mainPanelStyle:panel("main"), soccerPanelStyle:panel("soccer"), dualPanelStyle:panel("dual"), betgetPanelStyle:panel("betget"), findgamePanelStyle:panel("findgame"),
       chips_mb_book:chip("mb_book",BOOK_LABELS,false), chips_mb_strat:chip("mb_strat",MAIN_PROMOS,false),
       chips_hedge, chips_mainSports:chip("mainSports",SPORT_LABELS,false),
       chips_sc_book1:chip("sc_book1",BOOK_LABELS,true), chips_sc_book2:chip("sc_book2",BOOK_LABELS,true), chips_sc_book3:chip("sc_book3",BOOK_LABELS,true),
       chips_sc_type1:chip("sc_type1",SOCCER_PROMOS,true), chips_sc_type2:chip("sc_type2",SOCCER_PROMOS,true), chips_sc_type3:chip("sc_type3",SOCCER_PROMOS,true),
       chips_bg_book:chip("bg_book",BOOK_LABELS,false), chips_bg_sports:chip("bg_sports",SPORT_LABELS,false),
+      chips_db_book1:chip("db_book1",BOOK_LABELS,true), chips_db_type1:chip("db_type1",SOCCER_PROMOS,true), chips_db_book2:chip("db_book2",BOOK_LABELS,true), chips_db_type2:chip("db_type2",SOCCER_PROMOS,true), chips_db_sports:chip("db_sports",SPORT_LABELS,false),
+      dualFormRef:this.dualFormRef, scanDual:()=>this.scanDual(), dualStatus:s.dualScanning?"Scanning…":"", dualMsg:s.dualMsg,
+      dualShowHint: s.dualResults.length===0 && !s.dualScanning && !s.dualMsg,
+      dualHasResults:s.dualResults.length>0, dualList, dualCountLabel:cnt(dualList),
       chips_fg_book:chip("fg_book",BOOK_LABELS,false), chips_fg_strat:chip("fg_strat",MAIN_PROMOS,false), chips_fg_sport:chip("fg_sport",SPORT_LABELS,false),
       fgFormRef:this.fgFormRef, loadGames:()=>this.loadGames(), scanFindGame:()=>this.scanFindGame(), onGameSelect:(e)=>this.onGameSelect(e), selectSport:(e)=>this.selectSport(e), fgSelValue:s.fg_selIdx||"",
       fgGamesMsg: s.fgLoadingGames?"Loading…":s.fgGamesMsg, fgGameOptions:s.fgGames,
