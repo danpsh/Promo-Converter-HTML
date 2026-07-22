@@ -523,6 +523,24 @@ class Component extends DCLogic {
     return { rank:i+1, game:op.game, meta:`${op.time} · ${op.sport} · 2-way`, profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:profit>=0?"Net Profit":"Net Loss (minimized)",value:`${sign}${this.money(profit)}`,tone:profit>=0?"pos":"neg"}], caption:"" };
   }
 
+  readForm(ref){ const el=ref&&ref.current, out={}; if(el){ el.querySelectorAll("[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; } document.querySelectorAll("input[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; }
+  needKey(setter){ if(!this.state.apiKey){ this.setState(setter("Enter your Odds API key at the top and Save.")); return true; } return false; }
+
+  async scanMain(){
+    const f=this.readForm(this.mainFormRef.current);
+    const ch=this.state.chips;
+    const book=[...ch.mb_book][0]||"", strat=[...ch.mb_strat][0]||"";
+    if(!book||!strat){ this.setState({mainMsg:"Please select a source book and promo type.", mainResults:[]}); return; }
+    if(this.needKey(m=>({mainMsg:m}))) return;
+    const sports=[...ch.mainSports];
+    const p={ book, strat, boost_val:parseFloat(f.boost)||0, wager:parseFloat(f.mb_wager)||0, hedge_books: this.state.hedgeAny?[]:[...ch.mainHedge], sports: sports.length?sports:SPORT_LABELS };
+    this.setState({mainScanning:true, mainMsg:"", mainResults:[]});
+    try{ const opps=await this.runPromoScan(p);
+      const vms=opps.sort((a,b)=>b.exact_profit-a.exact_profit).slice(0,15).map((o,i)=>this.finalize(this.buildMainVM(o,i)));
+      this.setState({mainResults:vms, mainScanning:false, mainMsg: vms.length?"":"No profitable matches found."});
+    }catch(e){ this.setState({mainScanning:false, mainMsg:"Scan error: "+e.message, mainResults:[]}); }
+  }
+
   async scanDual(){
     const f=this.readForm(); const ch=this.state.chips;
     const book1=[...ch.db_book1][0]||"", type1=[...ch.db_type1][0]||"", type2=[...ch.db_type2][0]||"";
