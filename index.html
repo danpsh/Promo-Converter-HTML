@@ -647,6 +647,11 @@ class Component extends DCLogic {
     }catch(e){ this.setState({fgScanning:false, fgMsg:"Scan error: "+e.message, fgResults:[]}); }
   }
 
+  setActive(t){ this.setState({activeTab:t}); }
+  toggleLosses(){ this.setState({hideLosses:!this.state.hideLosses}); }
+  toggleChip(e){ const el=e.currentTarget, f=el.dataset.field, v=el.dataset.value; let set; if(el.dataset.single==="1"){ set=new Set(this.state.chips[f].has(v)?[]:[v]); } else { set=new Set(this.state.chips[f]); set.has(v)?set.delete(v):set.add(v); } this.setState({chips:{...this.state.chips,[f]:set}}); }
+  toggleHedge(e){ const v=e.currentTarget.dataset.value; if(v==="__any"){ this.setState({hedgeAny:true, chips:{...this.state.chips, mainHedge:new Set()}}); return; } const set=new Set(this.state.chips.mainHedge); set.has(v)?set.delete(v):set.add(v); this.setState({hedgeAny:false, chips:{...this.state.chips, mainHedge:set}}); }
+
   renderVals(){
     const chip=(field,opts,small)=>opts.map(o=>{ const v=typeof o==="string"?o:o.value, lbl=typeof o==="string"?o:o.label; const sel=this.state.chips[field].has(v);
         const base = small ? "display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;" : "display:inline-flex;align-items:center;padding:10px 15px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;";
