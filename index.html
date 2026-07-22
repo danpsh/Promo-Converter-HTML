@@ -449,6 +449,27 @@ class Component extends DCLogic {
     return Object.values(seen);
   }
 
+  buildMainVM(op,i){
+    const profit=op.exact_profit, sign=profit>=0?"+":"";
+    const meta=[op.time, op.market_type];
+    if(op.used_boost>0) meta.push(`+${op.used_boost}% boost`);
+    if(op.strat==="Bonus Bet"){ const bw=op.exact_w1 ?? op.wager ?? 0; const cr=bw>0?profit/bw*100:0; meta.push(`${cr.toFixed(1)}% conv`); }
+    let legs;
+    if(op.market_type==="3-way"){
+      legs=[
+        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_w1)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",title:op.h1_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge1)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
+        {tone:"success",title:op.h2_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge2)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
+      ];
+    } else {
+      legs=[
+        {tone:"info",title:op.s_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",title:op.h_book.toUpperCase(),lines:[{label:"Stake",value:this.money(op.exact_hedge)}],footer:`${op.h_team} @ ${this.priceStr(op.h_price)}`}
+      ];
+    }
+    return { rank:i+1, game:op.game, meta:meta.join(" · "), profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:"Net Arbitrage Profit",value:this.money(profit),tone:profit>=0?"pos":"neg"}], caption:"" };
+  }
+
   async runDualScan(d){
     const book1_key=book_map[d.book1];
     const book2_keys = d.book2.length ? d.book2.map(b=>book_map[b]).filter(v=>v!==book1_key) : Object.values(book_map).filter(v=>v!==book1_key);
@@ -521,6 +542,81 @@ class Component extends DCLogic {
       mk("success",op.o2_book,op.o2_strat,op.o2_boost,op.o2_wager,op.o2_promo,op.o2_cash,op.o2_team,op.o2_price)
     ];
     return { rank:i+1, game:op.game, meta:`${op.time} · ${op.sport} · 2-way`, profitStr:`${sign}${this.money(profit)}`, profitPos:profit>=0, legs, metrics:[{label:profit>=0?"Net Profit":"Net Loss (minimized)",value:`${sign}${this.money(profit)}`,tone:profit>=0?"pos":"neg"}], caption:"" };
+  }
+
+  finalize(vm){
+    vm.profitColor = vm.profitPos ? "#15803d" : "#dc2626";
+    vm.legs = vm.legs.map(l=>({ role:l.role||"", sub:l.sub||"", title:l.title, footer:l.footer, lines:l.lines||[],
+      cardStyle:`background:${TONE[l.tone].bg};border:1px solid ${TONE[l.tone].bd};border-radius:9px;padding:12px 13px;`,
+      titleStyle:`font-weight:700;font-size:13.5px;color:${TONE[l.tone].ac};margin-bottom:6px;` }));
+    vm.metrics = vm.metrics.map(m=>({ label:m.label, value:m.value,
+      boxStyle:"background:#fafafa;border:1px solid #ececef;border-radius:9px;padding:10px 14px;min-width:150px;flex:1;",
+      valStyle:`font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;margin-top:2px;color:${m.tone==="pos"?"#15803d":m.tone==="neg"?"#dc2626":"#18181b"};` }));
+    vm.caption=vm.caption||"";
+    return vm;
+  }
+
+  async runBetGetScan(bg){
+    const source_book_key=book_map[bg.book];
+    const allowed_hedge_keys=Object.values(book_map).filter(v=>v!==source_book_key);
+    const allowed_keys=[source_book_key,...allowed_hedge_keys];
+    const {todayKey,endKey}=this.dateWindow(this.lookaheadDays());
+    const bg_opps=[]; const projected=bg.bonus_val*this.betGet();
+    for(const sport_label of bg.sports){
+      const [games,remaining]=await this.fetchOdds(sports_map[sport_label],"h2h");
+      if(!games) continue; this.setState({apiQuota:remaining});
+      for(const game of games){
+        if(!this.gameNotStarted(game.commence_time)) continue;
+        const gk=this.centralKey(game.commence_time); if(!(todayKey<=gk && gk<=endKey)) continue;
+        const flat=this.buildFlatH2h(game,allowed_keys); if(!flat.length) continue;
+        const unique=[...new Set(flat.map(o=>o.team))];
+        const game_label=`${game.away_team} vs ${game.home_team}`, game_time=this.fmtTime(game.commence_time);
+        if(unique.length===3){
+          const odds_t1=flat.filter(o=>o.team===unique[0]), odds_t2=flat.filter(o=>o.team===unique[1]), odds_draw=flat.filter(o=>o.team===unique[2]);
+          for(const o1 of odds_t1) for(const o2 of odds_t2) for(const o3 of odds_draw){
+            if(o1.book_key===o2.book_key||o1.book_key===o3.book_key||o2.book_key===o3.book_key) continue;
+            if(o1.book_key!==source_book_key) continue;
+            const sm=this.mult(o1.price), hm1=this.mult(o2.price), hm2=this.mult(o3.price);
+            const target_payout=bg.wager*(1+sm); const h1_stake=target_payout/(1+hm1); const h2_stake=target_payout/(1+hm2);
+            const qualifying_loss=target_payout-bg.wager-h1_stake-h2_stake; const net_value=projected+qualifying_loss;
+            bg_opps.push({game:game_label,sport:sport_label,market_type:"3-way",time:game_time,qualifying_loss,net_value,s_book:o1.book_title,s_team:o1.team,s_price:o1.price,s_wager:bg.wager,h1_book:o2.book_title,h1_team:o2.team,h1_price:o2.price,h1_wager:h1_stake,h2_book:o3.book_title,h2_team:o3.team,h2_price:o3.price,h2_wager:h2_stake});
+          }
+        } else if(unique.length===2){
+          const source_odds=flat.filter(o=>o.book_key===source_book_key);
+          const hedge_odds=flat.filter(o=>allowed_hedge_keys.includes(o.book_key));
+          for(const s of source_odds){
+            const opp=unique.filter(t=>t!==s.team); if(!opp.length) continue;
+            const eligible=hedge_odds.filter(h=>h.team===opp[0]); if(!eligible.length) continue;
+            const best_h=eligible.reduce((a,b)=>b.price>a.price?b:a);
+            const sm=this.mult(s.price), hm=this.mult(best_h.price);
+            const target_payout=bg.wager*(1+sm); const h_stake=target_payout/(1+hm);
+            const qualifying_loss=target_payout-bg.wager-h_stake; const net_value=projected+qualifying_loss;
+            bg_opps.push({game:game_label,sport:sport_label,market_type:"2-way",time:game_time,qualifying_loss,net_value,s_book:s.book_title,s_team:s.team,s_price:s.price,s_wager:bg.wager,h1_book:best_h.book_title,h1_team:best_h.team,h1_price:best_h.price,h1_wager:h_stake});
+          }
+        }
+      }
+    }
+    return bg_opps;
+  }
+
+  buildBetGetVM(op,i){
+    const nv=op.net_value, sign=nv>=0?"+":"";
+    let legs;
+    if(op.market_type==="3-way"){
+      legs=[
+        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",role:"Hedge Leg 1",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`},
+        {tone:"success",role:"Hedge Leg 2",title:op.h2_book,lines:[{label:"Bet",value:this.money(op.h2_wager)}],footer:`${op.h2_team} @ ${this.priceStr(op.h2_price)}`}
+      ];
+    } else {
+      legs=[
+        {tone:"info",role:"Required (Qualifier)",title:op.s_book,lines:[{label:"Bet",value:this.money(op.s_wager)}],footer:`${op.s_team} @ ${this.priceStr(op.s_price)}`},
+        {tone:"success",role:"Hedge Leg",title:op.h1_book,lines:[{label:"Bet",value:this.money(op.h1_wager)}],footer:`${op.h1_team} @ ${this.priceStr(op.h1_price)}`}
+      ];
+    }
+    return { rank:i+1, game:op.game, meta:`${op.time} · ${op.market_type}`, profitStr:`${sign}${this.money(nv)}`, profitPos:nv>=0, legs,
+      caption:`League: ${op.sport} · Market: ${op.market_type.toUpperCase()}`,
+      metrics:[{label:"Qualifying Cost (Loss)",value:this.money(op.qualifying_loss),tone:"neutral"},{label:"Net Value Lock (Est. 65% Convert)",value:this.money(nv),tone:nv>=0?"pos":"neg"}] };
   }
 
   readForm(ref){ const el=ref&&ref.current, out={}; if(el){ el.querySelectorAll("[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; } document.querySelectorAll("input[data-field]").forEach(n=>out[n.dataset.field]=n.value); return out; }
